@@ -189,6 +189,32 @@ export const Store = () => {
   : currentViewedStore
   }, [username, user?.name, currentStore, currentViewedStore])
 
+  const calculateARRRExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/PIRATECHAIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+
   const switchCoin = async ()=> {
     dispatch(setIsLoadingGlobal(true));
 
@@ -623,31 +649,7 @@ export const Store = () => {
   
 
 
-  const calculateARRRExchangeRate = async()=> {
-    try {
-      const url = '/crosschain/price/PIRATECHAIN?maxtrades=10&inverse=true'
-    const info = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const responseDataStore = await info.text();
 
-    const ratio = +responseDataStore /100000000
-    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
-    setExchangeRate(ratio)
-    } catch (error) {
-      dispatch(setPreferredCoin(CoinFilter.qort))
-      dispatch(
-        setNotification({
-          alertType: "error",
-          msg: "Cannot get exchange rate- reverted to QORT",
-        })
-      );
-    }
-
-  }
 
  
   return (
