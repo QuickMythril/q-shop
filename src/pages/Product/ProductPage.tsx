@@ -55,40 +55,38 @@ export const ProductPage = () => {
   const productID: string = params.product || "";
   const catalogueID: string = params.catalogue || "";
   const storeId: string = params.store || "";
-  const currentStore = useSelector(
-    (state: RootState) => state.global.currentStore
-  );
+
   const currentViewedStore = useSelector(
     (state: RootState) => state.store.currentViewedStore
   );
   const [product, setProduct] = useState<Product | null>(null);
   const [cartAddAmount, setCartAddAmount] = useState<number>(0);
-  const preferredCoin = useSelector((state: RootState) => state.store.preferredCoin);
-  const [exchangeRate, setExchangeRate] = useState<number | null>(
-    null
+  const preferredCoin = useSelector(
+    (state: RootState) => state.store.preferredCoin
   );
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const catalogueHashMap = useSelector(
     (state: RootState) => state.global.catalogueHashMap
   );
   const carts = useSelector((state: RootState) => state.cart.carts);
   const user = useSelector((state: RootState) => state.auth.user);
 
-  const calculateARRRExchangeRate = async()=> {
+  const calculateARRRExchangeRate = async () => {
     try {
-      const url = '/crosschain/price/PIRATECHAIN?maxtrades=10&inverse=true'
-    const info = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const responseDataStore = await info.text();
+      const url = "/crosschain/price/PIRATECHAIN?maxtrades=10&inverse=true";
+      const info = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const responseDataStore = await info.text();
 
-    const ratio = +responseDataStore /100000000
-    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
-    setExchangeRate(ratio)
+      const ratio = +responseDataStore / 100000000;
+      if (isNaN(ratio)) throw new Error("Cannot get exchange rate");
+      setExchangeRate(ratio);
     } catch (error) {
-      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(setPreferredCoin(CoinFilter.qort));
       dispatch(
         setNotification({
           alertType: "error",
@@ -96,37 +94,44 @@ export const ProductPage = () => {
         })
       );
     }
+  };
 
-  }
-  const storeToUse = useMemo(()=> {
-    return storeOwner === user?.name
-   ? currentStore
-   : currentViewedStore
-   }, [storeOwner, user?.name, currentStore, currentViewedStore])
+  const storeToUse = useMemo(() => {
+    return currentViewedStore;
+  }, [storeOwner, user?.name, currentViewedStore]);
 
-   const switchCoin = async ()=> {
+  const switchCoin = async () => {
     dispatch(setIsLoadingGlobal(true));
 
-    await calculateARRRExchangeRate()
+    await calculateARRRExchangeRate();
     dispatch(setIsLoadingGlobal(false));
+  };
 
-
-  }
-
-  useEffect(()=> {
-    if(preferredCoin === CoinFilter.arrr && storeToUse?.supportedCoins?.includes(CoinFilter.arrr)){
-      switchCoin()
-    } 
-  }, [preferredCoin, storeToUse])
-
-  const coinToUse = useMemo(()=> {
-    if(preferredCoin === CoinFilter.arrr && storeToUse?.supportedCoins?.includes(CoinFilter.arrr)){
-      return CoinFilter.arrr
-    } else {
-      return CoinFilter.qort
+  useEffect(() => {
+    if (
+      preferredCoin === CoinFilter.arrr &&
+      storeToUse?.supportedCoins?.includes(CoinFilter.arrr)
+    ) {
+      switchCoin();
     }
-  }, [preferredCoin, storeToUse])
+  }, [preferredCoin, storeToUse]);
 
+  useEffect(() => {
+    if (!storeToUse && storeOwner !== user?.name) {
+      navigate(`/${storeOwner}/${storeId}`);
+    }
+  }, [storeToUse, storeOwner, user?.name]);
+
+  const coinToUse = useMemo(() => {
+    if (
+      preferredCoin === CoinFilter.arrr &&
+      storeToUse?.supportedCoins?.includes(CoinFilter.arrr)
+    ) {
+      return CoinFilter.arrr;
+    } else {
+      return CoinFilter.qort;
+    }
+  }, [preferredCoin, storeToUse]);
 
   const { checkAndUpdateResourceCatalogue, getCatalogue } = useFetchOrders();
 
@@ -170,14 +175,15 @@ export const ProductPage = () => {
     awaitProductData();
   }, [catalogueHashMap]);
 
-  
   let price = product?.price?.find(item => item?.currency === "qort")?.value;
-  const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
+  const priceArrr = product?.price?.find(
+    item => item?.currency === CoinFilter.arrr
+  )?.value;
 
-  if(coinToUse === CoinFilter.arrr && priceArrr) {
-    price = +priceArrr
-  } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
-    price = +price * exchangeRate
+  if (coinToUse === CoinFilter.arrr && priceArrr) {
+    price = +priceArrr;
+  } else if (price && exchangeRate && coinToUse !== CoinFilter.qort) {
+    price = +price * exchangeRate;
   }
 
   const addToCart = () => {
@@ -270,16 +276,16 @@ export const ProductPage = () => {
           {product.description}
         </ProductDescription>
         <ProductPriceRow>
-        {coinToUse === CoinFilter.qort && (
-          <ProductPrice>
-            <QortalSVG
-              height={"26"}
-              width={"26"}
-              color={theme.palette.text.primary}
-            />{" "}
-            {price}
-          </ProductPrice>
-        )}
+          {coinToUse === CoinFilter.qort && (
+            <ProductPrice>
+              <QortalSVG
+                height={"26"}
+                width={"26"}
+                color={theme.palette.text.primary}
+              />{" "}
+              {price}
+            </ProductPrice>
+          )}
           {coinToUse === CoinFilter.arrr && (
             <ProductPrice>
               <ARRRSVG
@@ -298,9 +304,9 @@ export const ProductPage = () => {
         checked={coinToUse === CoinFilter.arrr}
         onChange={() => {
           if (coinToUse !== CoinFilter.arrr) {
-            dispatch(setPreferredCoin(CoinFilter.arrr))
+            dispatch(setPreferredCoin(CoinFilter.arrr));
           } else {
-            dispatch(setPreferredCoin(CoinFilter.qort))
+            dispatch(setPreferredCoin(CoinFilter.qort));
           }
         }}
       />

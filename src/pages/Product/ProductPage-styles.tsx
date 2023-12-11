@@ -128,8 +128,8 @@ export const BackToStoreButton = styled(Button)(({ theme }) => ({
 }));
 
 export const ArrrSwitch = styled(Switch)(({ theme }) => ({
-  position: "absolute",
-  bottom: "-200px",
+  position: "fixed",
+  bottom: "0",
   right: "30px",
   width: 88,
   height: 57,
