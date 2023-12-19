@@ -13,6 +13,7 @@ const commonThemeOptions = {
       "Catamaran",
       "Cairo",
       "Arial",
+      "Figtree"
     ].join(","),
     h1: {
       fontSize: "2rem",

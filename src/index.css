@@ -43,6 +43,11 @@
   src: url("./styles/fonts/Montserrat.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "Figtree";
+  src: url("./styles/fonts/Figtree.ttf") format("truetype");
+}
+
 :root {
   padding: 0px;
   margin: 0px;

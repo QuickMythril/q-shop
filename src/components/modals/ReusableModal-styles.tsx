@@ -1,5 +1,6 @@
 import { styled } from "@mui/system";
 import { Box } from "@mui/material";
+import AbstractTechArt from "../../assets/img/AbstractTechArt.png";
 
 export const ReusableModalBody = styled(Box)(({ theme }) => ({
   position: "absolute",
@@ -35,5 +36,21 @@ export const ReusableModalBody = styled(Box)(({ theme }) => ({
   },
   "&::-webkit-scrollbar-thumb:hover": {
     backgroundColor: theme.palette.mode === "light" ? "#b7bcc4" : "#474646"
+  },
+  "&.download-qortal-modal": {
+    "&::before": {
+      content: "''",
+      position: "absolute",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+      backgroundImage: `url(${AbstractTechArt})`,
+      backgroundSize: "cover",
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "center",
+      filter: "blur(2px) contrast(0.3)",
+      zIndex: -1
+    }
   }
 }));

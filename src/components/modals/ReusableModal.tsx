@@ -9,6 +9,7 @@ interface MyModalProps {
   children: any;
   customStyles?: any;
   id?: string;
+  className?: string;
 }
 
 export const ReusableModal: React.FC<MyModalProps> = ({
@@ -17,7 +18,8 @@ export const ReusableModal: React.FC<MyModalProps> = ({
   onClose,
   // onSubmit,
   children,
-  customStyles = {}
+  customStyles = {},
+  className
 }) => {
   const theme = useTheme();
   return (
@@ -32,6 +34,7 @@ export const ReusableModal: React.FC<MyModalProps> = ({
         sx={{
           ...customStyles
         }}
+        className={className}
       >
         {children}
       </ReusableModalBody>

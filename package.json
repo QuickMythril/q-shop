@@ -38,13 +38,15 @@
     "short-unique-id": "^4.4.4",
     "slate": "^0.91.4",
     "slate-history": "^0.86.0",
-    "slate-react": "^0.91.11"
+    "slate-react": "^0.91.11",
+    "ua-parser-js": "^1.0.37"
   },
   "devDependencies": {
     "@mui/types": "^7.2.3",
     "@types/react": "^18.0.28",
     "@types/react-copy-to-clipboard": "^5.0.4",
     "@types/react-dom": "^18.0.11",
+    "@types/ua-parser-js": "^0.7.39",
     "@vitejs/plugin-react-swc": "^3.2.0",
     "prettier": "^2.8.6",
     "typescript": "^4.9.3",

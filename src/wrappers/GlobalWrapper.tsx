@@ -3,23 +3,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../state/features/authSlice";
 import { RootState } from "../state/store";
 import CreateStoreModal, {
-  onPublishParam
+  onPublishParam,
 } from "../components/modals/CreateStoreModal";
 import EditStoreModal, {
-  onPublishParamEdit
+  onPublishParamEdit,
 } from "../components/modals/EditStoreModal";
 import {
   setCurrentStore,
   setDataContainer,
   toggleEditStoreModal,
-  toggleCreateStoreModal,
   setIsLoadingGlobal,
-  resetProducts,
   resetListProducts,
-  DataContainer,
   ProductDataContainer,
   updateRecentlyVisitedStoreId,
-  clearDataCotainer
+  clearDataCotainer,
 } from "../state/features/globalSlice";
 import NavBar from "../components/layout/Navbar/Navbar";
 import PageLoader from "../components/common/PageLoader";
@@ -32,14 +29,26 @@ import {
   addToAllMyStores,
   addToHashMapStores,
   addToStores,
-  setAllMyStores
+  setAllMyStores,
 } from "../state/features/storeSlice";
 import { useFetchStores } from "../hooks/useFetchStores";
 import { DATA_CONTAINER_BASE, STORE_BASE } from "../constants/identifiers";
 import { ReusableModal } from "../components/modals/ReusableModal";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Stack, Typography, useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { CustomModalButton, CustomModalTitle } from "./GlobalWrapper-styles";
+import {
+  CustomModalButton,
+  CustomModalTitle,
+  DownloadNowButton,
+  DownloadQortalCol,
+  DownloadQortalFont,
+  DownloadQortalSubFont,
+  QortalIcon,
+} from "./GlobalWrapper-styles";
+import QortalLogo from "../assets/img/Q-AppsLogo.webp";
+import { DownloadCircleSVG } from "../assets/svgs/DownloadCircleSVG";
+import { UAParser } from "ua-parser-js";
+
 interface Props {
   children: React.ReactNode;
   setTheme: (val: string) => void;
@@ -54,6 +63,10 @@ interface ShortDataContainer {
 const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const theme = useTheme();
+
+  // Determine which OS they're on
+  const parser = new UAParser();
 
   // Get user from auth
   const user = useSelector((state: RootState) => state.auth.user);
@@ -94,6 +107,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
   const [openDataContainerModal, setOpenDataContainer] =
     useState<boolean>(false);
   const [retryDataContainer, setRetryDataContainer] = useState<boolean>(false);
+  const [showDownloadModal, setShowDownloadModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (!user?.name) return;
@@ -107,7 +121,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         action: "GET_QDN_RESOURCE_URL",
         name: user?.name,
         service: "THUMBNAIL",
-        identifier: "qortal_avatar"
+        identifier: "qortal_avatar",
       });
 
       if (url === "Resource does not exist") return;
@@ -142,8 +156,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
     const responseBlogs = await fetch(url2, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     });
     const dataMetadata = await responseBlogs.json();
     if (dataMetadata.length === 0) {
@@ -157,8 +171,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
     const responseBlogs = await fetch(url, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     });
     const responseDataBlogs = await responseBlogs.json();
     const filterOut = responseDataBlogs.filter((blog: any) =>
@@ -173,8 +187,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
     const response = await fetch(urlBlog, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     });
     const responseData = await response.json();
 
@@ -182,8 +196,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
     const response2 = await fetch(urlDataContainer, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     });
     const responseData2 = await response2.json();
     // Set currentStore in the Redux global state
@@ -200,7 +214,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         logo: responseData?.logo || "",
         shortStoreId: responseData?.shortStoreId,
         supportedCoins: responseData?.supportedCoins || [],
-        foreignCoins: responseData?.foreignCoins || {}
+        foreignCoins: responseData?.foreignCoins || {},
       })
     );
     // Set listProducts in the Redux global state
@@ -208,7 +222,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
       dispatch(
         setDataContainer({
           ...responseData2,
-          id: `${store.identifier}-${DATA_CONTAINER_BASE}`
+          id: `${store.identifier}-${DATA_CONTAINER_BASE}`,
         })
       );
     } else {
@@ -218,7 +232,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         storeId: store.identifier,
         shortStoreId: shortStoreId,
         owner: store.name,
-        products: {}
+        products: {},
       };
       const dataContainerToBase64 = await objectToBase64(dataContainer);
 
@@ -227,15 +241,21 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         name: store.name,
         service: "DOCUMENT",
         data64: dataContainerToBase64,
-        identifier: `${store.identifier}-${DATA_CONTAINER_BASE}`
+        identifier: `${store.identifier}-${DATA_CONTAINER_BASE}`,
       });
     }
   }
 
+  // Only called when user clicks authenticate from inside a gateway
+
+  const displayDownloadQortalGatewayModalFunc = () => {
+    setShowDownloadModal(true);
+  };
+
   const askForAccountInformation = React.useCallback(async () => {
     try {
       let account = await qortalRequest({
-        action: "GET_USER_ACCOUNT"
+        action: "GET_USER_ACCOUNT",
       });
 
       const name = await getNameInfo(account.address);
@@ -258,7 +278,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         service: "DOCUMENT",
         data64: dataContainerToBase64,
         identifier: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`,
-        filename: "datacontainer.json"
+        filename: "datacontainer.json",
       });
       if (isSuccessful(resourceResponse)) {
         await new Promise<void>((res, rej) => {
@@ -269,13 +289,13 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         dispatch(
           setDataContainer({
             ...storedDataContainer,
-            id: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`
+            id: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`,
           })
         );
         dispatch(
           setNotification({
             msg: "Shop successfully created",
-            alertType: "success"
+            alertType: "success",
           })
         );
         setCloseCreateStoreModal(true);
@@ -289,7 +309,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
       dispatch(
         setNotification({
           msg: "You must create a data container in order to create a shop!",
-          alertType: "error"
+          alertType: "error",
         })
       );
       // Try again after 8 seconds automatically
@@ -304,7 +324,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             service: "DOCUMENT",
             data64: dataContainerToBase64,
             identifier: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`,
-            filename: "datacontainer.json"
+            filename: "datacontainer.json",
           });
           if (isSuccessful(resourceResponse)) {
             await new Promise<void>((res, rej) => {
@@ -315,13 +335,13 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             dispatch(
               setDataContainer({
                 ...storedDataContainer,
-                id: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`
+                id: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`,
               })
             );
             dispatch(
               setNotification({
                 msg: "Shop successfully created",
-                alertType: "success"
+                alertType: "success",
               })
             );
             setCloseCreateStoreModal(true);
@@ -339,7 +359,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
           dispatch(
             setNotification({
               msg: "You must create a data container in order to create a shop!",
-              alertType: "error"
+              alertType: "error",
             })
           );
         }
@@ -359,7 +379,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
       storeIdentifier,
       logo,
       foreignCoins,
-      supportedCoins
+      supportedCoins,
     }: onPublishParam) => {
       if (!user || !user.name)
         throw new Error("Cannot publish: You do not have a Qortal name");
@@ -394,18 +414,19 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         shortStoreId: formatStoreIdentifier,
         logo,
         foreignCoins,
-        supportedCoins
+        supportedCoins,
       };
       if (!storeObj.shortStoreId) {
         throw new Error("Please insert a valid store id");
       }
       // Store Data Container to send to QDN (this will allow easier querying of products afterwards. Think of it as a database in the redux global state for the current store. Max 1 per store). At first there's no products, but they will be added later. We store this in the state so we can reuse it easily if our data container fails to publish.
       try {
-
         const storeToBase64 = await objectToBase64(storeObj);
 
         // Publish Store to QDN
-        let metadescription = `**coins:QORTtrue,ARRR${supportedCoins.includes('ARRR')}**` + description.slice(0,180)
+        let metadescription =
+          `**coins:QORTtrue,ARRR${supportedCoins.includes("ARRR")}**` +
+          description.slice(0, 180);
 
         const resourceResponse = await qortalRequest({
           action: "PUBLISH_QDN_RESOURCE",
@@ -415,7 +436,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
           filename: "store.json",
           title,
           description: metadescription,
-          identifier: identifier
+          identifier: identifier,
         });
         if (isSuccessful(resourceResponse)) {
           await new Promise<void>((res, rej) => {
@@ -428,7 +449,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             storeId: identifier,
             shortStoreId: formatStoreIdentifier,
             owner: name,
-            products: {}
+            products: {},
           };
           // Store data (other than the raw data or metadata) to add to Redux
           const storeData = {
@@ -438,7 +459,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             owner: name,
             id: storeIdentifier,
             shortStoreId: formatStoreIdentifier,
-            logo: logo
+            logo: logo,
           };
           // Store Full Object to send to redux hashMapStores
           const storefullObj = {
@@ -447,7 +468,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             isValid: true,
             owner: name,
             created: createdAt,
-            updated: createdAt
+            updated: createdAt,
           };
 
           dispatch(setCurrentStore(storefullObj));
@@ -464,17 +485,17 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         if (typeof error === "string") {
           notificationObj = {
             msg: error || "Failed to create store",
-            alertType: "error"
+            alertType: "error",
           };
         } else if (typeof error?.error === "string") {
           notificationObj = {
             msg: error?.error || "Failed to create store",
-            alertType: "error"
+            alertType: "error",
           };
         } else {
           notificationObj = {
             msg: error?.message || "Failed to create store",
-            alertType: "error"
+            alertType: "error",
           };
         }
         if (!notificationObj) return;
@@ -498,7 +519,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
       shipsTo,
       logo,
       foreignCoins,
-      supportedCoins
+      supportedCoins,
     }: onPublishParamEdit) => {
       if (!user || !user.name || !currentStore)
         throw new Error("Cannot publish: You do not have a Qortal name");
@@ -522,13 +543,15 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         logo,
         shortStoreId: currentStore.shortStoreId ?? shortStoreId,
         foreignCoins,
-        supportedCoins
+        supportedCoins,
       };
 
       try {
         const storeToBase64 = await objectToBase64(storeObj);
 
-        let metadescription = `**coins:QORTtrue,ARRR${supportedCoins.includes('ARRR')}**` + description.slice(0,180)
+        let metadescription =
+          `**coins:QORTtrue,ARRR${supportedCoins.includes("ARRR")}**` +
+          description.slice(0, 180);
         const resourceResponse = await qortalRequest({
           action: "PUBLISH_QDN_RESOURCE",
           name: name,
@@ -537,7 +560,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
           filename: "store.json",
           title,
           description: metadescription,
-          identifier: currentStore.id
+          identifier: currentStore.id,
         });
 
         await new Promise<void>((res, rej) => {
@@ -550,7 +573,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         dispatch(
           setNotification({
             msg: "Shop successfully updated",
-            alertType: "success"
+            alertType: "success",
           })
         );
       } catch (error: any) {
@@ -558,17 +581,17 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         if (typeof error === "string") {
           notificationObj = {
             msg: error || "Failed to update blog",
-            alertType: "error"
+            alertType: "error",
           };
         } else if (typeof error?.error === "string") {
           notificationObj = {
             msg: error?.error || "Failed to update blog",
-            alertType: "error"
+            alertType: "error",
           };
         } else {
           notificationObj = {
             msg: error?.message || "Failed to update blog",
-            alertType: "error"
+            alertType: "error",
           };
         }
         if (!notificationObj) return;
@@ -597,8 +620,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
       const response = await fetch(url, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
       const responseData = await response.json();
       // Data returned from that endpoint of the API
@@ -612,7 +635,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
           created: storeItem.created,
           updated: storeItem.updated,
           owner: storeItem.name,
-          id: storeItem.identifier
+          id: storeItem.identifier,
         };
       });
 
@@ -624,7 +647,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         if (content.owner && content.id) {
           const res = checkAndUpdateResource({
             id: content.id,
-            updated: content.updated
+            updated: content.updated,
           });
           if (res) {
             getStore(content.owner, content.id, content);
@@ -668,8 +691,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             const shopData = await fetch(urlShop, {
               method: "GET",
               headers: {
-                "Content-Type": "application/json"
-              }
+                "Content-Type": "application/json",
+              },
             });
             const shopResource = await shopData.json();
             // Clear product list from redux global state
@@ -687,7 +710,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
                 logo: shopResource?.logo,
                 shortStoreId: shopResource?.shortStoreId,
                 supportedCoins: shopResource?.supportedCoins || [],
-                foreignCoins: shopResource?.foreignCoins || {}
+                foreignCoins: shopResource?.foreignCoins || {},
               })
             );
             // Fetch data container data on QDN (product resources)
@@ -695,8 +718,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             const response = await fetch(urlDataContainer, {
               method: "GET",
               headers: {
-                "Content-Type": "application/json"
-              }
+                "Content-Type": "application/json",
+              },
             });
             const responseData2 = await response.json();
             if (
@@ -707,7 +730,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
               dispatch(
                 setDataContainer({
                   ...responseData2,
-                  id: `${myStoreFound.id}-${DATA_CONTAINER_BASE}`
+                  id: `${myStoreFound.id}-${DATA_CONTAINER_BASE}`,
                 })
               );
             } else if (user?.name && recentlyVisitedStoreId) {
@@ -722,7 +745,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
                 limit: 0,
                 offset: 0,
                 reverse: true,
-                mode: "ALL"
+                mode: "ALL",
               });
               if (dataContainerExists?.length === 0) {
                 // Publish Data Container to QDN
@@ -737,7 +760,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
                   storeId: recentlyVisitedStoreId,
                   shortStoreId: formatStoreIdentifier,
                   owner: user?.name,
-                  products: {}
+                  products: {},
                 };
                 const dataContainerToBase64 = await objectToBase64(
                   dataContainer
@@ -749,20 +772,20 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
                     service: "DOCUMENT",
                     data64: dataContainerToBase64,
                     identifier: `${recentlyVisitedStoreId}-${DATA_CONTAINER_BASE}`,
-                    filename: "datacontainer.json"
+                    filename: "datacontainer.json",
                   });
                   if (dataContainerCreated && !dataContainerCreated.error) {
                     dispatch(
                       setDataContainer({
                         ...dataContainer,
-                        id: `${recentlyVisitedStoreId}-${DATA_CONTAINER_BASE}`
+                        id: `${recentlyVisitedStoreId}-${DATA_CONTAINER_BASE}`,
                       })
                     );
                   }
                   dispatch(
                     setNotification({
                       msg: "Data Container Created!",
-                      alertType: "success"
+                      alertType: "success",
                     })
                   );
                 } catch (error) {
@@ -770,7 +793,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
                   dispatch(
                     setNotification({
                       msg: "Error when creating the data container. Please try again!",
-                      alertType: "error"
+                      alertType: "error",
                     })
                   );
                   dispatch(updateRecentlyVisitedStoreId(""));
@@ -780,7 +803,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
                 dispatch(
                   setNotification({
                     msg: "Error when fetching store data. Please try again!",
-                    alertType: "error"
+                    alertType: "error",
                   })
                 );
                 navigate("/");
@@ -862,11 +885,94 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         userName={user?.name || ""}
         userAvatar={userAvatar}
         authenticate={askForAccountInformation}
+        displayDownloadGatewayModalFunc={displayDownloadQortalGatewayModalFunc}
         hasAttemptedToFetchShopInitial={hasAttemptedToFetchShopInitial}
       />
       <ConsentModal />
       {/* Cart opens when setIsOpen action is dispatched to Redux Global State */}
       <Cart />
+      {showDownloadModal && (
+        <ReusableModal
+          open={showDownloadModal}
+          onClose={() => {
+            setShowDownloadModal(false);
+          }}
+          customStyles={{
+            width: "370px",
+            height: "80%",
+            backgroundColor:
+              theme.palette.mode === "light" ? "#e8e8e8" : "#030d1a",
+            position: "relative",
+            padding: "15px 20px",
+            borderRadius: "3px",
+            overflowY: "auto",
+            overflowX: "hidden",
+            maxHeight: "90vh",
+          }}
+          className="download-qortal-modal"
+        >
+          <DownloadQortalCol>
+            <QortalIcon src={QortalLogo} alt="qortal-icon" />
+            <DownloadQortalFont>Download Qortal</DownloadQortalFont>
+            <DownloadQortalSubFont>
+              Experience a new internet paradigm, and start your Qortal
+              experience today by downloading and installing the Qortal
+              software.
+            </DownloadQortalSubFont>
+            <DownloadNowButton
+              onClick={() => {
+                const userOS = parser.getOS().name;
+                if (userOS?.includes("Android" || "iOS")) {
+                  dispatch(
+                    setNotification({
+                      msg: "Qortal is not available on mobile devices yet. Please download on a desktop or laptop.",
+                      alertType: "error",
+                    })
+                  );
+                  return;
+                } else if (userOS?.includes("Mac")) {
+                  window.location.href =
+                    "https://github.com/Qortal/qortal-ui/releases/latest/download/Qortal-Setup-macOS.dmg";
+                  dispatch(
+                    setNotification({
+                      msg: "Download successful!",
+                      alertType: "success",
+                    })
+                  );
+                  return;
+                } else if (userOS?.includes("Windows")) {
+                  window.location.href =
+                    "https://github.com/Qortal/qortal-ui/releases/latest/download/Qortal-Setup-win64.exe";
+                  dispatch(
+                    setNotification({
+                      msg: "Download successful!",
+                      alertType: "success",
+                    })
+                  );
+                  return;
+                } else if (userOS?.includes("Linux")) {
+                  window.location.href =
+                    "https://github.com/Qortal/qortal-ui/releases/latest/download/Qortal-Setup-amd64.AppImage";
+                  dispatch(
+                    setNotification({
+                      msg: "Download successful!",
+                      alertType: "success",
+                    })
+                  );
+                  return;
+                }
+              }}
+            >
+              Download Now{" "}
+              <DownloadCircleSVG
+                color={theme.palette.text.primary}
+                height="30"
+                width="30"
+              />
+            </DownloadNowButton>
+          </DownloadQortalCol>
+        </ReusableModal>
+      )}
       {children}
     </>
   );

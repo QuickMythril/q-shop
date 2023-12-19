@@ -41,6 +41,7 @@ interface Props {
   authenticate: () => void;
   hasAttemptedToFetchShopInitial: boolean;
   setTheme: (val: string) => void;
+  displayDownloadGatewayModalFunc: () => void;
 }
 
 const NavBar: React.FC<Props> = ({
@@ -49,7 +50,8 @@ const NavBar: React.FC<Props> = ({
   userAvatar,
   authenticate,
   hasAttemptedToFetchShopInitial,
-  setTheme
+  setTheme,
+  displayDownloadGatewayModalFunc
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -128,7 +130,14 @@ const NavBar: React.FC<Props> = ({
         }}
       >
         {!isAuthenticated && (
-          <AuthenticateButton onClick={authenticate}>
+          <AuthenticateButton onClick={() => {
+            const isGateWay = window.location.href.includes("https");
+            if (isGateWay) {
+              displayDownloadGatewayModalFunc();
+              return;
+            }
+            authenticate();
+          }}>
             <ExitToAppIcon />
             Authenticate
           </AuthenticateButton>
