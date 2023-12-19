@@ -898,8 +898,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             setShowDownloadModal(false);
           }}
           customStyles={{
-            width: "370px",
-            height: "80%",
+            width: "400px",
+            height: "auto",
             backgroundColor:
               theme.palette.mode === "light" ? "#e8e8e8" : "#030d1a",
             position: "relative",
