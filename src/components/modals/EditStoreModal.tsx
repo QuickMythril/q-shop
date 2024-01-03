@@ -212,7 +212,6 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
         data64: dataContainerToBase64,
         identifier: `${currentStore.id}-${DATA_CONTAINER_BASE}`,
       });
-      console.log({ dataContainerCreated });
       if (dataContainerCreated && !dataContainerCreated.error) {
         dispatch(
           setDataContainer({
@@ -229,9 +228,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
           })
         );
         onClose();
+        setShowCreateNewDataContainerModal(false);
+        setShowAdvancedSettings(false);
       }
-      setShowCreateNewDataContainerModal(false);
-      setShowAdvancedSettings(false);
     } catch (error) {
       console.error(error);
       navigate("/");
