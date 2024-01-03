@@ -7,9 +7,15 @@ import {
   IconButton,
   Tooltip,
   Zoom,
+  Box,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleCreateStoreModal } from "../../state/features/globalSlice";
+import {
+  toggleCreateStoreModal,
+  setDataContainer,
+  resetListProducts,
+  resetProducts
+} from "../../state/features/globalSlice";
 import { RootState } from "../../state/store";
 import {
   AddLogoButton,
@@ -25,6 +31,10 @@ import {
   ModalTitle,
   StoreLogoPreview,
   TimesIcon,
+  AdvancedSettingsBox,
+  EditStoreButtonsRow,
+  CreateNewDataContainerRow,
+  CreateNewDataContainerButton,
 } from "./CreateStoreModal-styles";
 import ImageUploader from "../common/ImageUploader";
 import {
@@ -37,6 +47,11 @@ import {
 import { supportedCoinsArray } from "../../constants/supported-coins";
 import { QortalSVG } from "../../assets/svgs/QortalSVG";
 import { ARRRSVG } from "../../assets/svgs/ARRRSVG";
+import { ReusableModal } from "./ReusableModal";
+import { DATA_CONTAINER_BASE, STORE_BASE } from "../../constants/identifiers";
+import { objectToBase64 } from "../../utils/toBase64";
+import { ShortDataContainer } from "../../wrappers/GlobalWrapper";
+import { setNotification } from "../../state/features/notificationsSlice";
 
 interface ForeignCoins {
   [key: string]: string;
@@ -62,6 +77,7 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
   const currentStore = useSelector(
     (state: RootState) => state.global.currentStore
   );
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const storeId = useSelector((state: RootState) => state.store.storeId);
 
@@ -76,6 +92,10 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
   >(["QORT"]);
   const [qortWalletAddress, setQortWalletAddress] = useState<string>("");
   const [arrrWalletAddress, setArrrWalletAddress] = useState<string>("");
+  const [showAdvancedSettings, setShowAdvancedSettings] =
+    useState<boolean>(false);
+  const [showCreateNewDataContainerModal, setShowCreateNewDataContainerModal] =
+    useState<boolean>(false);
 
   const theme = useTheme();
 
@@ -88,11 +108,14 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
       }
 
       const foreignCoins: ForeignCoins = {
-        ARRR: arrrWalletAddress
-      }
-      supportedCoinsSelected.filter((coin)=> coin !== 'QORT').forEach((item: string)=> {
-        if(!foreignCoins[item]) throw new Error(`Please add a ${item} address`)
-      })
+        ARRR: arrrWalletAddress,
+      };
+      supportedCoinsSelected
+        .filter(coin => coin !== "QORT")
+        .forEach((item: string) => {
+          if (!foreignCoins[item])
+            throw new Error(`Please add a ${item} address`);
+        });
       await onPublish({
         title,
         description,
@@ -100,9 +123,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
         location,
         logo,
         foreignCoins: {
-          ARRR: arrrWalletAddress
+          ARRR: arrrWalletAddress,
         },
-        supportedCoins: supportedCoinsSelected
+        supportedCoins: supportedCoinsSelected,
       });
       handleClose();
     } catch (error: any) {
@@ -117,8 +140,8 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
       setLogo(currentStore?.logo || null);
       setLocation(currentStore?.location || "");
       setShipsTo(currentStore?.shipsTo || "");
-      setSupportedCoinsSelected(currentStore?.supportedCoins || ['QORT'])
-      setArrrWalletAddress(currentStore?.foreignCoins?.ARRR || "")
+      setSupportedCoinsSelected(currentStore?.supportedCoins || ["QORT"]);
+      setArrrWalletAddress(currentStore?.foreignCoins?.ARRR || "");
     }
   }, [currentStore, storeId, open]);
 
@@ -130,8 +153,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
     setLogo(null);
     setLocation("");
     setShipsTo("");
-    setArrrWalletAddress("")
-    setSupportedCoinsSelected(["QORT"])
+    setArrrWalletAddress("");
+    setSupportedCoinsSelected(["QORT"]);
+    setShowAdvancedSettings(false);
     dispatch(toggleCreateStoreModal(false));
     onClose();
   };
@@ -145,19 +169,82 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
     setSupportedCoinsSelected(prevChips => prevChips.filter(c => c !== chip));
   };
 
-  const importAddress = async (coin: string)=> {
+  const importAddress = async (coin: string) => {
     try {
       const res = await qortalRequest({
-        action: 'GET_USER_WALLET',
-        coin
-      })
-      if(res?.address){
-        setArrrWalletAddress(res.address)
+        action: "GET_USER_WALLET",
+        coin,
+      });
+      if (res?.address) {
+        setArrrWalletAddress(res.address);
       }
     } catch (error) {
-      
+      console.error(error);
     }
-  }
+  };
+
+  // Recreate Shop Data
+
+  const handleRecreateShopData = async () => {
+    if (!currentStore || !user?.name) {
+      dispatch(
+        setNotification({
+          msg: "Error! Missing shop data or name",
+          alertType: "error",
+        })
+      );
+      return;
+    }
+    try {
+      const shortStoreId = currentStore?.shortStoreId;
+      const dataContainer: ShortDataContainer = {
+        storeId: currentStore.id,
+        shortStoreId: shortStoreId,
+        owner: user.name,
+        products: {},
+      };
+      const dataContainerToBase64 = await objectToBase64(dataContainer);
+
+      const dataContainerCreated = await qortalRequest({
+        action: "PUBLISH_QDN_RESOURCE",
+        name: user?.name,
+        service: "DOCUMENT",
+        data64: dataContainerToBase64,
+        identifier: `${currentStore.id}-${DATA_CONTAINER_BASE}`,
+      });
+      console.log({ dataContainerCreated });
+      if (dataContainerCreated && !dataContainerCreated.error) {
+        dispatch(
+          setDataContainer({
+            ...dataContainer,
+            id: `${currentStore.id}-${DATA_CONTAINER_BASE}`,
+          })
+        );
+        dispatch(resetListProducts());
+        dispatch(resetProducts());
+        dispatch(
+          setNotification({
+            msg: "Data Container Created!",
+            alertType: "success",
+          })
+        );
+        onClose();
+      }
+      setShowCreateNewDataContainerModal(false);
+      setShowAdvancedSettings(false);
+    } catch (error) {
+      console.error(error);
+      navigate("/");
+      dispatch(
+        setNotification({
+          msg: "Error when creating the data container. Please try again!",
+          alertType: "error",
+        })
+      );
+      dispatch(updateRecentlyVisitedStoreId(""));
+      dispatch(clearDataCotainer());
+    }
+  };
 
   return (
     <Modal
@@ -294,7 +381,11 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
             arrow={true}
             title="Import your ARRR Wallet Address from your current account"
           >
-            <IconButton disableFocusRipple={true} disableRipple={true} onClick={()=> importAddress('ARRR')}>
+            <IconButton
+              disableFocusRipple={true}
+              disableRipple={true}
+              onClick={() => importAddress("ARRR")}
+            >
               <DownloadArrrWalletIcon
                 color={theme.palette.text.primary}
                 height="40"
@@ -361,20 +452,81 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
             />
           )}
         />
+        {showAdvancedSettings && (
+          <CreateNewDataContainerRow
+            onClick={() => {
+              setShowCreateNewDataContainerModal(true);
+            }}
+          >
+            <CreateNewDataContainerButton>
+              Recreate Shop Data
+            </CreateNewDataContainerButton>
+          </CreateNewDataContainerRow>
+        )}
         <FormControl fullWidth sx={{ marginBottom: 2 }}></FormControl>
         {errorMessage && (
           <Typography color="error" variant="body1">
             {errorMessage}
           </Typography>
         )}
-        <ButtonRow sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-          <CancelButton variant="outlined" color="error" onClick={handleClose}>
-            Cancel
-          </CancelButton>
-          <CreateButton variant="contained" onClick={handlePublish}>
-            Edit Shop
-          </CreateButton>
+        <ButtonRow sx={{ display: "flex", justifyContent: "space-between" }}>
+          <AdvancedSettingsBox>
+            <Typography>Advanced Settings</Typography>
+            <FiltersCheckbox
+              checked={showAdvancedSettings}
+              onChange={() => setShowAdvancedSettings(!showAdvancedSettings)}
+            />
+          </AdvancedSettingsBox>
+          <EditStoreButtonsRow>
+            <CancelButton
+              variant="outlined"
+              color="error"
+              onClick={handleClose}
+            >
+              Cancel
+            </CancelButton>
+            <CreateButton variant="contained" onClick={handlePublish}>
+              Edit Shop
+            </CreateButton>
+          </EditStoreButtonsRow>
         </ButtonRow>
+        <ReusableModal
+          open={showCreateNewDataContainerModal}
+          customStyles={{
+            width: "50%",
+            maxWidth: 1700,
+            height: "auto",
+            backgroundColor:
+              theme.palette.mode === "light" ? "#e8e8e8" : "#32333c",
+            position: "relative",
+            padding: "25px",
+            borderRadius: "3px",
+            overflowY: "auto",
+            overflowX: "hidden",
+            maxHeight: "90vh",
+          }}
+        >
+          <Box>
+            Warning! ⚠️ Are you sure you want to recreate your shop's data? This
+            will clear all your shop's products. This should only be done as a
+            last resort if you cannot access your product manager or if you are
+            experiencing issues products displaying properly.
+          </Box>
+          <ButtonRow>
+            <CancelButton
+              variant="outlined"
+              color="error"
+              onClick={() => {
+                setShowCreateNewDataContainerModal(false);
+              }}
+            >
+              Cancel
+            </CancelButton>
+            <CreateButton variant="contained" onClick={handleRecreateShopData}>
+              Recreate Shop Data
+            </CreateButton>
+          </ButtonRow>
+        </ReusableModal>
       </ModalBody>
     </Modal>
   );

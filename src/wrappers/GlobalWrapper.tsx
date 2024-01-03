@@ -53,7 +53,8 @@ interface Props {
   children: React.ReactNode;
   setTheme: (val: string) => void;
 }
-interface ShortDataContainer {
+
+export interface ShortDataContainer {
   storeId: string;
   shortStoreId: string;
   owner: string;

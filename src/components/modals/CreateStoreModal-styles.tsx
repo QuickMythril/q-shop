@@ -195,3 +195,52 @@ export const DownloadArrrWalletIcon = styled(DownloadSVG)(({ theme }) => ({
     cursor: "pointer",
   },
 }));
+
+export const AdvancedSettingsBox = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  gap: "10px",
+  padding: "5px 10px",
+  borderRadius: "5px",
+  backgroundColor: theme.palette.background.paper,
+  "& .MuiTypography-root": {
+    fontFamily: "Karla",
+    fontSize: "20px",
+    fontWeight: 300,
+    letterSpacing: "0.2px",
+  }
+}));
+
+export const EditStoreButtonsRow = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+});
+
+export const CreateNewDataContainerRow = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+});
+
+export const CreateNewDataContainerButton = styled(Button)(({ theme }) => ({
+  backgroundColor: "#d43232",
+  textTransform: "none",
+  fontFamily: "Raleway",
+  fontWeight: 300,
+  gap: "5px",
+  fontSize: "17px",
+  borderRadius: "5px",
+  border: "none",
+  color: "white",
+  padding: "5px 15px",
+  transition: "all 0.3s ease-in-out",
+  boxShadow:
+    "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;",
+  "&:hover": {
+    cursor: "pointer",
+    backgroundColor: "#a72727",
+    boxShadow:
+      "rgba(50, 50, 93, 0.35) 0px 3px 5px -1px, rgba(0, 0, 0, 0.4) 0px 2px 3px -1px;"
+  }
+}));

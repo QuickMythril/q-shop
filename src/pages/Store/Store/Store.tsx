@@ -217,12 +217,16 @@ export const Store = () => {
 
   const switchCoin = async ()=> {
     dispatch(setIsLoadingGlobal(true));
-
     await calculateARRRExchangeRate()
     dispatch(setIsLoadingGlobal(false));
-
-
   }
+
+  // If shop's datacontainer changes, and listProducts becomes empty, clear local products array
+  useEffect(() => {
+    if (username === user?.name && userOwnDataContainer && Object.keys(userOwnDataContainer.products).length === 0) {
+      setProducts([]);
+    }
+  }, [userOwnDataContainer]);
 
   useEffect(()=> {
     if(preferredCoin === CoinFilter.arrr && storeToUse?.supportedCoins?.includes(CoinFilter.arrr)){
