@@ -171,7 +171,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
   }
 
   async function getMyCurrentStore(name: string) {
-    const url = `/arbitrary/resources/search?service=STORE&identifier=${STORE_BASE}-&exactmatchnames=true&name=${name}&prefix=true&limit=20&includemetadata=false`;
+    const url = `/arbitrary/resources/search?mode=ALL&service=STORE&identifier=${STORE_BASE}-&exactmatchnames=true&name=${name}&prefix=true&limit=20&includemetadata=false`;
     const responseBlogs = await fetch(url, {
       method: "GET",
       headers: {
