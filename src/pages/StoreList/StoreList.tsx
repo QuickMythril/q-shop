@@ -158,7 +158,7 @@ export const StoreList = () => {
             {filteredStores.length > 0 &&
               filteredStores
                 // Get rid of the Bester shop (test shop)
-                // .filter((store: Store) => store.owner !== "Bester")
+                .filter((store: Store) => store.owner !== "Bester")
                 .map((store: Store) => {
                   let storeItem = store;
                   let hasHash = false;
