@@ -140,8 +140,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
       setLogo(currentStore?.logo || null);
       setLocation(currentStore?.location || "");
       setShipsTo(currentStore?.shipsTo || "");
-      setSupportedCoinsSelected(currentStore?.supportedCoins || ["QORT"]);
-      setArrrWalletAddress(currentStore?.foreignCoins?.ARRR || "");
+      const selectedCoinsList = [...new Set([...(currentStore?.supportedCoins || []), 'QORT'])];
+      setSupportedCoinsSelected(selectedCoinsList)
+      setArrrWalletAddress(currentStore?.foreignCoins?.ARRR || "")
     }
   }, [currentStore, storeId, open]);
 
@@ -233,15 +234,12 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
       }
     } catch (error) {
       console.error(error);
-      navigate("/");
       dispatch(
         setNotification({
           msg: "Error when creating the data container. Please try again!",
           alertType: "error",
         })
       );
-      dispatch(updateRecentlyVisitedStoreId(""));
-      dispatch(clearDataCotainer());
     }
   };
 

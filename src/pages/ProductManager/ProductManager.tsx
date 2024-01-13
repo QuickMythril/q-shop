@@ -57,10 +57,15 @@ import {
   STORE_BASE,
 } from "../../constants/identifiers";
 import { resetOrders } from "../../state/features/orderSlice";
+import { useModal } from "../../components/common/useModal";
+import { MultiplePublish } from "../../components/common/MultiplePublish/MultiplePublish";
 
 const uid = new ShortUniqueId({ length: 10 });
 
 export const ProductManager = () => {
+  const {isShow, onCancel, onOk, show} = useModal()
+  const [publishes, setPublishes] = useState<any>(null);
+
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -362,7 +367,9 @@ export const ProductManager = () => {
         action: "PUBLISH_MULTIPLE_QDN_RESOURCES",
         resources: [...publishMultipleCatalogues, publishDataContainer],
       };
-      await qortalRequest(multiplePublish);
+      setPublishes(multiplePublish)
+      await show()
+      // await qortalRequest(multiplePublish);
 
       // Clear productsToSave from Redux store
       dispatch(clearAllProductsToSave());
@@ -431,6 +438,8 @@ export const ProductManager = () => {
       dispatch(setNotification(notificationObj));
 
       throw new Error("Failed to send message");
+    } finally {
+      setPublishes(null)
     }
   }
 
@@ -656,6 +665,18 @@ export const ProductManager = () => {
 
       {/* Confirm Remove Product from productsToSave in global state */}
       <Modal />
+      {isShow && (
+        <MultiplePublish
+          isOpen={isShow}
+          onError={(messageNotification)=> {
+            onCancel()
+          }}
+          onSubmit={() => {
+            onOk()
+          }}
+          publishes={publishes}
+        />
+      )}
     </ProductManagerContainer>
   );
 };

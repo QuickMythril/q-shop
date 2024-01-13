@@ -48,6 +48,8 @@ import {
 import QortalLogo from "../assets/img/Q-AppsLogo.webp";
 import { DownloadCircleSVG } from "../assets/svgs/DownloadCircleSVG";
 import { UAParser } from "ua-parser-js";
+import { useModal } from "../components/common/useModal";
+import { MultiplePublish } from "../components/common/MultiplePublish/MultiplePublish";
 
 interface Props {
   children: React.ReactNode;
@@ -65,7 +67,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-
+  const [isCreatingShop, setIsCreatingShop] = useState(false)
   // Determine which OS they're on
   const parser = new UAParser();
 
@@ -109,7 +111,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
     useState<boolean>(false);
   const [retryDataContainer, setRetryDataContainer] = useState<boolean>(false);
   const [showDownloadModal, setShowDownloadModal] = useState<boolean>(false);
-
+  const {isShow, onCancel, onOk, show} = useModal()
+  const [publishes, setPublishes] = useState<any>(null);
   useEffect(() => {
     if (!user?.name) return;
 
@@ -269,104 +272,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
     }
   }, []);
 
-  const handlePublishDataContainer = React.useCallback(async () => {
-    try {
-      const dataContainerToBase64 = await objectToBase64(storedDataContainer);
-      // Publish Data Container to QDN
-      const resourceResponse = await qortalRequest({
-        action: "PUBLISH_QDN_RESOURCE",
-        name: storedDataContainer?.owner,
-        service: "DOCUMENT",
-        data64: dataContainerToBase64,
-        identifier: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`,
-        filename: "datacontainer.json",
-      });
-      if (isSuccessful(resourceResponse)) {
-        await new Promise<void>((res, rej) => {
-          setTimeout(() => {
-            res();
-          }, 1000);
-        });
-        dispatch(
-          setDataContainer({
-            ...storedDataContainer,
-            id: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`,
-          })
-        );
-        dispatch(
-          setNotification({
-            msg: "Shop successfully created",
-            alertType: "success",
-          })
-        );
-        setCloseCreateStoreModal(true);
-        setRetryDataContainer(false);
-        setOpenDataContainer(false);
-      } else {
-        setOpenDataContainer(true);
-      }
-    } catch (error) {
-      console.error(error);
-      dispatch(
-        setNotification({
-          msg: "You must create a data container in order to create a shop!",
-          alertType: "error",
-        })
-      );
-      // Try again after 8 seconds automatically
-      setOpenDataContainer(true);
-      let interval: number | undefined = undefined;
-      const dataContainerToBase64 = await objectToBase64(storedDataContainer);
-      interval = window.setInterval(async () => {
-        try {
-          const resourceResponse = await qortalRequest({
-            action: "PUBLISH_QDN_RESOURCE",
-            name: storedDataContainer?.owner,
-            service: "DOCUMENT",
-            data64: dataContainerToBase64,
-            identifier: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`,
-            filename: "datacontainer.json",
-          });
-          if (isSuccessful(resourceResponse)) {
-            await new Promise<void>((res, rej) => {
-              setTimeout(() => {
-                res();
-              }, 1000);
-            });
-            dispatch(
-              setDataContainer({
-                ...storedDataContainer,
-                id: `${storedDataContainer?.storeId}-${DATA_CONTAINER_BASE}`,
-              })
-            );
-            dispatch(
-              setNotification({
-                msg: "Shop successfully created",
-                alertType: "success",
-              })
-            );
-            setCloseCreateStoreModal(true);
-            setRetryDataContainer(false);
-            setOpenDataContainer(false);
-            clearInterval(interval);
-          }
-        } catch (error) {
-          console.error(error);
-          setRetryDataContainer(false);
-          // clear interval
-          if (interval) {
-            clearInterval(interval);
-          }
-          dispatch(
-            setNotification({
-              msg: "You must create a data container in order to create a shop!",
-              alertType: "error",
-            })
-          );
-        }
-      }, 8000);
-    }
-  }, [storedDataContainer]);
+ 
 
   // If they successfully create a store but not a data container, keep the data-container information in the state.
   // Wait 8 seconds and try again automatically. If it fails again, then tell them to republish again.
@@ -382,6 +288,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
       foreignCoins,
       supportedCoins,
     }: onPublishParam) => {
+      if(isCreatingShop) return
+      setIsCreatingShop(true)
       if (!user || !user.name)
         throw new Error("Cannot publish: You do not have a Qortal name");
       if (!title) throw new Error("A title is required");
@@ -429,7 +337,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
           `**coins:QORTtrue,ARRR${supportedCoins.includes("ARRR")}**` +
           description.slice(0, 180);
 
-        const resourceResponse = await qortalRequest({
+        const resourceStore = {
           action: "PUBLISH_QDN_RESOURCE",
           name: name,
           service: "STORE",
@@ -438,13 +346,9 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
           title,
           description: metadescription,
           identifier: identifier,
-        });
-        if (isSuccessful(resourceResponse)) {
-          await new Promise<void>((res, rej) => {
-            setTimeout(() => {
-              res();
-            }, 1000);
-          });
+        }
+     
+        
           const createdAt = Date.now();
           const dataContainer = {
             storeId: identifier,
@@ -472,15 +376,43 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
             updated: createdAt,
           };
 
+          const dataContainerToBase64 = await objectToBase64(dataContainer);
+      // Publish Data Container to QDN
+      const resourceDatacontainer = {
+        action: "PUBLISH_QDN_RESOURCE",
+        name: name,
+        service: "DOCUMENT",
+        data64: dataContainerToBase64,
+        identifier: `${identifier}-${DATA_CONTAINER_BASE}`,
+        filename: "datacontainer.json",
+      }
+
+          const multiplePublish = {
+            action: "PUBLISH_MULTIPLE_QDN_RESOURCES",
+            resources: [resourceStore, resourceDatacontainer],
+          };
+          setPublishes(multiplePublish)
+          await show()
           dispatch(setCurrentStore(storefullObj));
           dispatch(addToHashMapStores(storefullObj));
           dispatch(addToStores(storefullObj));
           dispatch(addToAllMyStores(storeData));
-          setStoredDataContainer(dataContainer);
-          setRetryDataContainer(true);
-        } else {
-          throw new Error("Failed to create store");
-        }
+          dispatch(
+            setDataContainer({
+              ...dataContainer,
+              id: `${identifier}-${DATA_CONTAINER_BASE}`,
+            })
+          );
+          dispatch(
+            setNotification({
+              msg: "Shop successfully created",
+              alertType: "success",
+            })
+          );
+          setCloseCreateStoreModal(true);
+          setOpenDataContainer(false);
+       
+       
       } catch (error: any) {
         let notificationObj: any = null;
         if (typeof error === "string") {
@@ -507,6 +439,8 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
           console.error(error);
           throw new Error("An unknown error occurred");
         }
+      } finally {
+        setIsCreatingShop(false)
       }
     },
     [user]
@@ -821,24 +755,22 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
     }
   }, [recentlyVisitedStoreId, myStores, userOwnDataContainer]);
 
-  // Handle publishing of data container when creating a store, or if it fails too (Need this to be able to call it from the reusable modal)
-  useEffect(() => {
-    const publishDataContainer = async () => {
-      // Publish Data Container to QDN here
-      await handlePublishDataContainer();
-    };
-    if (
-      retryDataContainer &&
-      storedDataContainer &&
-      Object.keys(storedDataContainer).length > 0
-    ) {
-      publishDataContainer();
-    }
-    // We only want to run this when retryDataContainer changes, or else storedDataContainer will be cleared beforehand.
-  }, [retryDataContainer]);
+
 
   return (
     <>
+     {isShow && (
+        <MultiplePublish
+          isOpen={isShow}
+          onError={()=> {
+            onCancel()
+          }}
+          onSubmit={() => {
+            onOk()
+          }}
+          publishes={publishes}
+        />
+      )}
       {isLoadingGlobal && <PageLoader />}
       {isOpenCreateStoreModal && user?.name && (
         <CreateStoreModal

@@ -81,6 +81,8 @@ import { AcceptedCoin } from "../StoreList/StoreList-styles";
 import { ARRRSVG } from "../../assets/svgs/ARRRSVG";
 import { setPreferredCoin } from "../../state/features/storeSlice";
 import { CoinFilter } from "../Store/Store/Store";
+import { useModal } from "../../components/common/useModal";
+import { MultiplePublish } from "../../components/common/MultiplePublish/MultiplePublish";
 
 /* Currency must be replaced in the order confirmation email by proper currency */
 
@@ -92,7 +94,8 @@ interface CountryProps {
 export const Cart = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
+  const {isShow, onCancel, onOk, show} = useModal()
+  const [publishes, setPublishes] = useState<any>(null);
   const uid = new ShortUniqueId({
     length: 10,
   });
@@ -754,7 +757,9 @@ export const Cart = () => {
         encrypt: true,
         publicKeys: [resAddress.publicKey, usernamePublicKey],
       };
-      await qortalRequest(multiplePublish);
+      setPublishes(multiplePublish)
+      await show()
+      // await qortalRequest(multiplePublish);
       // Clear this cart state from global carts redux
       dispatch(removeCartFromCarts({ storeId }));
       // Clear cart local state
@@ -787,6 +792,7 @@ export const Cart = () => {
       );
     } finally {
       dispatch(setIsLoadingGlobal(false));
+      setPublishes(null)
     }
   };
 
@@ -828,6 +834,18 @@ export const Cart = () => {
 
   return (
     <>
+     {isShow && (
+        <MultiplePublish
+          isOpen={isShow}
+          onError={(messageNotification)=> {
+            onCancel()
+          }}
+          onSubmit={() => {
+            onOk()
+          }}
+          publishes={publishes}
+        />
+      )}
       <ReusableModal
         open={isOpen}
         customStyles={{
