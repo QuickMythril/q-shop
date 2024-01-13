@@ -53,28 +53,31 @@ interface MultiplePublishProps {
          
         } catch (error: any) {
           const unsuccessfulPublishes = error?.error?.unsuccessfulPublishes || []
+          if(unsuccessfulPublishes?.length > 0){
+            setListOfUnSuccessfulPublishes(unsuccessfulPublishes)
+            return
+          }
           if(error?.error === 'User declined request'){
+            if(listOfUnsuccessfulPublishes.length > 0) return
             onError()
             return
           }
 
           if(error?.error === 'The request timed out'){
+            if(listOfUnsuccessfulPublishes.length > 0) return
             onError("The request timed out")
 
             return
           }
           
           
-          if(unsuccessfulPublishes?.length > 0){
-            setListOfUnSuccessfulPublishes(unsuccessfulPublishes)
-            
-          }
+          
         } finally {
         
           setIsPublishing(false)
         }
       },
-      [publish]
+      [publish, listOfUnsuccessfulPublishes]
     );
   
     const retry = ()=> {
