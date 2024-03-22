@@ -206,23 +206,29 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
         action: "GET_USER_WALLET",
         coin,
       });
-      if (coin === 'ARRR' && res?.address) {
-        setArrrWalletAddress(res.address);
-      }
-      else if (coin === 'BTC' && res?.address) {
-        setBtcWalletAddress(res.address);
-      }
-      else if (coin === 'LTC' && res?.address) {
-        setLtcWalletAddress(res.address);
-      }
-      else if (coin === 'DOGE' && res?.address) {
-        setDogeWalletAddress(res.address);
-      }
-      else if (coin === 'DGB' && res?.address) {
-        setDgbWalletAddress(res.address);
-      }
-      else if (coin === 'RVN' && res?.address) {
-        setRvnWalletAddress(res.address);
+      if(res?.address){
+        switch (coin){
+          case 'ARRR':
+            setArrrWalletAddress(res.address);
+            break;
+          case 'BTC':
+            setBtcWalletAddress(res.address);
+            break;
+          case 'LTC':
+            setLtcWalletAddress(res.address);
+            break;
+          case 'DOGE':
+            setDogeWalletAddress(res.address);
+            break;
+          case 'DGB':
+            setDgbWalletAddress(res.address);
+            break;
+          case 'RVN':
+            setRvnWalletAddress(res.address);
+            break;
+          default:
+            break;
+        }
       }
     } catch (error) {
       console.error(error);

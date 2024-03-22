@@ -225,15 +225,31 @@ export const ProductPage = () => {
     return currentViewedStore;
   }, [storeOwner, user?.name, currentViewedStore]);
 
-  const switchCoin = async () => {
+  const switchCoin = async (coin: string) => {
     dispatch(setIsLoadingGlobal(true));
 
-    await calculateARRRExchangeRate();
-    await calculateBTCExchangeRate();
-    await calculateLTCExchangeRate();
-    await calculateDOGEExchangeRate();
-    await calculateDGBExchangeRate();
-    await calculateRVNExchangeRate();
+    switch (coin) {
+      case 'ARRR':
+        await calculateARRRExchangeRate();
+        break;
+      case 'BTC':
+        await calculateBTCExchangeRate();
+        break;
+      case 'LTC':
+        await calculateLTCExchangeRate();
+        break;
+      case 'DOGE':
+        await calculateDOGEExchangeRate();
+        break;
+      case 'DGB':
+        await calculateDGBExchangeRate();
+        break;
+      case 'RVN':
+        await calculateRVNExchangeRate();
+        break;
+      default:
+        break;
+    }
     dispatch(setIsLoadingGlobal(false));
   };
 
@@ -242,32 +258,32 @@ export const ProductPage = () => {
       preferredCoin === CoinFilter.arrr &&
       storeToUse?.supportedCoins?.includes(CoinFilter.arrr)
     ) {
-      switchCoin();
+      switchCoin('ARRR');
     } else if (
       preferredCoin === CoinFilter.btc &&
       storeToUse?.supportedCoins?.includes(CoinFilter.btc)
     ) {
-      switchCoin();
+      switchCoin('BTC');
     } else if (
       preferredCoin === CoinFilter.ltc &&
       storeToUse?.supportedCoins?.includes(CoinFilter.ltc)
     ) {
-      switchCoin();
+      switchCoin('LTC');
     } else if (
       preferredCoin === CoinFilter.doge &&
       storeToUse?.supportedCoins?.includes(CoinFilter.doge)
     ) {
-      switchCoin();
+      switchCoin('DOGE');
     } else if (
       preferredCoin === CoinFilter.dgb &&
       storeToUse?.supportedCoins?.includes(CoinFilter.dgb)
     ) {
-      switchCoin();
+      switchCoin('DGB');
     } else if (
       preferredCoin === CoinFilter.rvn &&
       storeToUse?.supportedCoins?.includes(CoinFilter.rvn)
     ) {
-      switchCoin();
+      switchCoin('RVN');
     }
   }, [preferredCoin, storeToUse]);
 
