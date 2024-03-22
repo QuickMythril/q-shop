@@ -88,6 +88,9 @@ import QORT from "../../../assets/img/qort.png";
 import ARRR from "../../../assets/img/arrr.png";
 import BTC from "../../../assets/img/btc.png";
 import LTC from "../../../assets/img/ltc.png";
+import DOGE from "../../../assets/img/doge.png";
+import DGB from "../../../assets/img/dgb.png";
+import RVN from "../../../assets/img/rvn.png";
 import {
   AcceptedCoin,
   ExchangeRateCard,
@@ -118,6 +121,9 @@ export enum CoinFilter {
   arrr = "ARRR",
   btc = "BTC",
   ltc = "LTC",
+  doge = "DOGE",
+  dgb = "DGB",
+  rvn = "RVN",
 }
 
 export const Store = () => {
@@ -271,11 +277,92 @@ export const Store = () => {
 
   }
 
+  const calculateDOGEExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/DOGECOIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+
+  const calculateDGBExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/DIGIBYTE?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+
+  const calculateRVNExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/RAVENCOIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+
   const switchCoin = async ()=> {
     dispatch(setIsLoadingGlobal(true));
     await calculateARRRExchangeRate()
     await calculateBTCExchangeRate()
     await calculateLTCExchangeRate()
+    await calculateDOGEExchangeRate()
+    await calculateDGBExchangeRate()
+    await calculateRVNExchangeRate()
     dispatch(setIsLoadingGlobal(false));
   }
 
@@ -293,6 +380,12 @@ export const Store = () => {
       switchCoin()
     } else if(preferredCoin === CoinFilter.ltc && storeToUse?.supportedCoins?.includes(CoinFilter.ltc)){
       switchCoin()
+    } else if(preferredCoin === CoinFilter.doge && storeToUse?.supportedCoins?.includes(CoinFilter.doge)){
+      switchCoin()
+    } else if(preferredCoin === CoinFilter.dgb && storeToUse?.supportedCoins?.includes(CoinFilter.dgb)){
+      switchCoin()
+    } else if(preferredCoin === CoinFilter.rvn && storeToUse?.supportedCoins?.includes(CoinFilter.rvn)){
+      switchCoin()
     } 
   }, [preferredCoin, storeToUse])
 
@@ -303,6 +396,12 @@ export const Store = () => {
       return CoinFilter.btc
     } else if(preferredCoin === CoinFilter.ltc && storeToUse?.supportedCoins?.includes(CoinFilter.ltc)){
       return CoinFilter.ltc
+    } else if(preferredCoin === CoinFilter.doge && storeToUse?.supportedCoins?.includes(CoinFilter.doge)){
+      return CoinFilter.doge
+    } else if(preferredCoin === CoinFilter.dgb && storeToUse?.supportedCoins?.includes(CoinFilter.dgb)){
+      return CoinFilter.dgb
+    } else if(preferredCoin === CoinFilter.rvn && storeToUse?.supportedCoins?.includes(CoinFilter.rvn)){
+      return CoinFilter.rvn
     } else {
       return CoinFilter.qort
     }
@@ -899,6 +998,57 @@ export const Store = () => {
               />
             </FiltersRow>
             )}
+            {storeToUse?.foreignCoins?.DOGE && storeToUse?.supportedCoins?.includes('DOGE') && (
+              <FiltersRow>
+              <AcceptedCoinRow>
+                DOGE
+                <AcceptedCoin src={DOGE} alt="DOGE-logo" />
+              </AcceptedCoinRow>
+              <FiltersCheckbox
+                checked={coinToUse === CoinFilter.doge}
+                onChange={() => {
+                    if (coinToUse !== CoinFilter.doge) {
+                      dispatch(setPreferredCoin(CoinFilter.doge))
+                    } 
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            </FiltersRow>
+            )}
+            {storeToUse?.foreignCoins?.DGB && storeToUse?.supportedCoins?.includes('DGB') && (
+              <FiltersRow>
+              <AcceptedCoinRow>
+                DGB
+                <AcceptedCoin src={DGB} alt="DGB-logo" />
+              </AcceptedCoinRow>
+              <FiltersCheckbox
+                checked={coinToUse === CoinFilter.dgb}
+                onChange={() => {
+                    if (coinToUse !== CoinFilter.dgb) {
+                      dispatch(setPreferredCoin(CoinFilter.dgb))
+                    } 
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            </FiltersRow>
+            )}
+            {storeToUse?.foreignCoins?.RVN && storeToUse?.supportedCoins?.includes('RVN') && (
+              <FiltersRow>
+              <AcceptedCoinRow>
+                RVN
+                <AcceptedCoin src={RVN} alt="RVN-logo" />
+              </AcceptedCoinRow>
+              <FiltersCheckbox
+                checked={coinToUse === CoinFilter.rvn}
+                onChange={() => {
+                    if (coinToUse !== CoinFilter.rvn) {
+                      dispatch(setPreferredCoin(CoinFilter.rvn))
+                    } 
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            </FiltersRow>
+            )}
             
           </FiltersSubContainer>
           <FiltersTitle>
@@ -1005,6 +1155,78 @@ export const Store = () => {
             </ExchangeRateCard>
           </FiltersSubContainer>
           )}
+          {coinToUse === CoinFilter.doge && exchangeRate && (
+            <FiltersSubContainer>
+            <ExchangeRateCard>
+              <ExchangeRateRow>
+                <ExchangeRateTitle>1 QORT = {exchangeRate} DOGE</ExchangeRateTitle>
+              </ExchangeRateRow>
+              <ExchangeRateRow>
+                <ExchangeRateSubTitle>
+                  {`Rate calculated by recent trade portal trades`}
+                </ExchangeRateSubTitle>
+               
+              </ExchangeRateRow>
+              <ExchangeRateRow style={{ gap: "10px" }}>
+                <AcceptedCoin src={QORT} alt="QORT-logo" />
+                <CompareArrowsSVG
+                  color={theme.palette.text.primary}
+                  height={"32"}
+                  width={"32"}
+                />
+                <AcceptedCoin src={DOGE} alt="DOGE-logo" />
+              </ExchangeRateRow>
+            </ExchangeRateCard>
+          </FiltersSubContainer>
+          )}
+          {coinToUse === CoinFilter.dgb && exchangeRate && (
+            <FiltersSubContainer>
+            <ExchangeRateCard>
+              <ExchangeRateRow>
+                <ExchangeRateTitle>1 QORT = {exchangeRate} DGB</ExchangeRateTitle>
+              </ExchangeRateRow>
+              <ExchangeRateRow>
+                <ExchangeRateSubTitle>
+                  {`Rate calculated by recent trade portal trades`}
+                </ExchangeRateSubTitle>
+               
+              </ExchangeRateRow>
+              <ExchangeRateRow style={{ gap: "10px" }}>
+                <AcceptedCoin src={QORT} alt="QORT-logo" />
+                <CompareArrowsSVG
+                  color={theme.palette.text.primary}
+                  height={"32"}
+                  width={"32"}
+                />
+                <AcceptedCoin src={DGB} alt="DGB-logo" />
+              </ExchangeRateRow>
+            </ExchangeRateCard>
+          </FiltersSubContainer>
+          )}
+          {coinToUse === CoinFilter.rvn && exchangeRate && (
+            <FiltersSubContainer>
+            <ExchangeRateCard>
+              <ExchangeRateRow>
+                <ExchangeRateTitle>1 QORT = {exchangeRate} RVN</ExchangeRateTitle>
+              </ExchangeRateRow>
+              <ExchangeRateRow>
+                <ExchangeRateSubTitle>
+                  {`Rate calculated by recent trade portal trades`}
+                </ExchangeRateSubTitle>
+               
+              </ExchangeRateRow>
+              <ExchangeRateRow style={{ gap: "10px" }}>
+                <AcceptedCoin src={QORT} alt="QORT-logo" />
+                <CompareArrowsSVG
+                  color={theme.palette.text.primary}
+                  height={"32"}
+                  width={"32"}
+                />
+                <AcceptedCoin src={RVN} alt="RVN-logo" />
+              </ExchangeRateRow>
+            </ExchangeRateCard>
+          </FiltersSubContainer>
+          )}
           
         </FiltersContainer>
       </FiltersCol>
@@ -1079,6 +1301,27 @@ export const Store = () => {
                     style={{ width: "26px", height: "26px" }}
                     src={LTC}
                     alt="LTC-logo"
+                  />
+                  )}
+                  {storeToUse?.foreignCoins?.DOGE && storeToUse?.supportedCoins?.includes('DOGE') && (
+                    <AcceptedCoin
+                    style={{ width: "26px", height: "26px" }}
+                    src={DOGE}
+                    alt="DOGE-logo"
+                  />
+                  )}
+                  {storeToUse?.foreignCoins?.DGB && storeToUse?.supportedCoins?.includes('DGB') && (
+                    <AcceptedCoin
+                    style={{ width: "26px", height: "26px" }}
+                    src={DGB}
+                    alt="DGB-logo"
+                  />
+                  )}
+                  {storeToUse?.foreignCoins?.RVN && storeToUse?.supportedCoins?.includes('RVN') && (
+                    <AcceptedCoin
+                    style={{ width: "26px", height: "26px" }}
+                    src={RVN}
+                    alt="RVN-logo"
                   />
                   )}
                   

@@ -30,6 +30,9 @@ import QORT from "../../../assets/img/qort.png";
 import ARRR from "../../../assets/img/arrr.png";
 import BTC from "../../../assets/img/btc.png";
 import LTC from "../../../assets/img/ltc.png";
+import DOGE from "../../../assets/img/doge.png";
+import DGB from "../../../assets/img/dgb.png";
+import RVN from "../../../assets/img/rvn.png";
 
 interface StoreCardProps {
   storeTitle: string;
@@ -145,6 +148,15 @@ export const StoreCard: FC<StoreCardProps> = ({
             )}
             {supportedCoins?.includes('LTC') && (
              <AcceptedCoin src={LTC} alt="LTC-logo" />
+            )}
+            {supportedCoins?.includes('DOGE') && (
+             <AcceptedCoin src={DOGE} alt="DOGE-logo" />
+            )}
+            {supportedCoins?.includes('DGB') && (
+             <AcceptedCoin src={DGB} alt="DGB-logo" />
+            )}
+            {supportedCoins?.includes('RVN') && (
+             <AcceptedCoin src={RVN} alt="RVN-logo" />
             )}
           </AcceptedCoinsRow>
           <StoreCardOwner>{storeOwner}</StoreCardOwner>

@@ -79,10 +79,16 @@ import QORTLogo from "../../assets/img/qort.png";
 import ARRRLogo from "../../assets/img/arrr.png";
 import BTCLogo from "../../assets/img/btc.png";
 import LTCLogo from "../../assets/img/ltc.png";
+import DOGELogo from "../../assets/img/doge.png";
+import DGBLogo from "../../assets/img/dgb.png";
+import RVNLogo from "../../assets/img/rvn.png";
 import { AcceptedCoin } from "../StoreList/StoreList-styles";
 import { ARRRSVG } from "../../assets/svgs/ARRRSVG";
 import { BTCSVG } from "../../assets/svgs/BTCSVG";
 import { LTCSVG } from "../../assets/svgs/LTCSVG";
+import { DOGESVG } from "../../assets/svgs/DOGESVG";
+import { DGBSVG } from "../../assets/svgs/DGBSVG";
+import { RVNSVG } from "../../assets/svgs/RVNSVG";
 import { setPreferredCoin } from "../../state/features/storeSlice";
 import { CoinFilter } from "../Store/Store/Store";
 import { useModal } from "../../components/common/useModal";
@@ -131,6 +137,9 @@ export const Cart = () => {
     { value: "ARRR", label: "ARRR", icon: ARRRLogo },
     { value: "BTC", label: "BTC", icon: BTCLogo },
     { value: "LTC", label: "LTC", icon: LTCLogo },
+    { value: "DOGE", label: "DOGE", icon: DOGELogo },
+    { value: "DGB", label: "DGB", icon: DGBLogo },
+    { value: "RVN", label: "RVN", icon: RVNLogo },
   ];
 
   const [cartOrders, setCartOrders] = useState<string[]>([]);
@@ -233,6 +242,81 @@ export const Cart = () => {
     }
 
   }
+  const calculateDOGEExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/DOGECOIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+  const calculateDGBExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/DIGIBYTE?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+  const calculateRVNExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/RAVENCOIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
   const storeToUse = useMemo(()=> {
     return  currentViewedStore
    }, [currentViewedStore])
@@ -243,6 +327,9 @@ export const Cart = () => {
     await calculateARRRExchangeRate()
     await calculateBTCExchangeRate()
     await calculateLTCExchangeRate()
+    await calculateDOGEExchangeRate()
+    await calculateDGBExchangeRate()
+    await calculateRVNExchangeRate()
     dispatch(setIsLoadingGlobal(false));
 
 
@@ -255,6 +342,12 @@ export const Cart = () => {
       switchCoin()
     } else if(preferredCoin === CoinFilter.ltc && storeToUse?.supportedCoins?.includes(CoinFilter.ltc)){
       switchCoin()
+    } else if(preferredCoin === CoinFilter.doge && storeToUse?.supportedCoins?.includes(CoinFilter.doge)){
+      switchCoin()
+    } else if(preferredCoin === CoinFilter.dgb && storeToUse?.supportedCoins?.includes(CoinFilter.dgb)){
+      switchCoin()
+    } else if(preferredCoin === CoinFilter.rvn && storeToUse?.supportedCoins?.includes(CoinFilter.rvn)){
+      switchCoin()
     } 
   }, [preferredCoin, storeToUse])
 
@@ -265,6 +358,12 @@ export const Cart = () => {
       return CoinFilter.btc
     } else if(preferredCoin === CoinFilter.ltc && storeToUse?.supportedCoins?.includes(CoinFilter.ltc)){
       return CoinFilter.ltc
+    } else if(preferredCoin === CoinFilter.doge && storeToUse?.supportedCoins?.includes(CoinFilter.doge)){
+      return CoinFilter.doge
+    } else if(preferredCoin === CoinFilter.dgb && storeToUse?.supportedCoins?.includes(CoinFilter.dgb)){
+      return CoinFilter.dgb
+    } else if(preferredCoin === CoinFilter.rvn && storeToUse?.supportedCoins?.includes(CoinFilter.rvn)){
+      return CoinFilter.rvn
     } else {
       return CoinFilter.qort
     }
@@ -390,6 +489,9 @@ export const Cart = () => {
                       const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
                       const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
                       const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
+                      const priceDoge = product?.price?.find(item => item?.currency === CoinFilter.doge)?.value;
+                      const priceDgb = product?.price?.find(item => item?.currency === CoinFilter.dgb)?.value;
+                      const priceRvn = product?.price?.find(item => item?.currency === CoinFilter.rvn)?.value;
                     
                       if(coinToUse === CoinFilter.arrr && priceArrr) {
                         price = +priceArrr
@@ -397,6 +499,12 @@ export const Cart = () => {
                         price = +priceBtc
                       } else if(coinToUse === CoinFilter.ltc && priceLtc) {
                         price = +priceLtc
+                      } else if(coinToUse === CoinFilter.doge && priceDoge) {
+                        price = +priceDoge
+                      } else if(coinToUse === CoinFilter.dgb && priceDgb) {
+                        price = +priceDgb
+                      } else if(coinToUse === CoinFilter.rvn && priceRvn) {
+                        price = +priceRvn
                       } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
                         price = +price * exchangeRate
                       }
@@ -493,6 +601,33 @@ export const Cart = () => {
         destinationAddress: storeToUse?.foreignCoins?.LTC.trim(),
         amount: priceToPay,
       });
+    } else if(coinToUse === CoinFilter.doge){
+
+      if(!storeToUse?.foreignCoins?.DOGE) throw new Error('Store has not set a DOGE address')
+      responseSendCoin = await qortalRequest({
+        action: "SEND_COIN",
+        coin: "DOGE",
+        destinationAddress: storeToUse?.foreignCoins?.DOGE.trim(),
+        amount: priceToPay,
+      });
+    } else if(coinToUse === CoinFilter.dgb){
+
+      if(!storeToUse?.foreignCoins?.DGB) throw new Error('Store has not set a DGB address')
+      responseSendCoin = await qortalRequest({
+        action: "SEND_COIN",
+        coin: "DGB",
+        destinationAddress: storeToUse?.foreignCoins?.DGB.trim(),
+        amount: priceToPay,
+      });
+    } else if(coinToUse === CoinFilter.rvn){
+
+      if(!storeToUse?.foreignCoins?.RVN) throw new Error('Store has not set a RVN address')
+      responseSendCoin = await qortalRequest({
+        action: "SEND_COIN",
+        coin: "RVN",
+        destinationAddress: storeToUse?.foreignCoins?.RVN.trim(),
+        amount: priceToPay,
+      });
     } else {
       dispatch(
         setNotification({
@@ -528,7 +663,10 @@ export const Cart = () => {
           transactionSignature: signature,
           arrrAddressUsed: coinToUse === CoinFilter.arrr ? storeToUse?.foreignCoins?.ARRR.trim() : "",
           btcAddressUsed: coinToUse === CoinFilter.btc ? storeToUse?.foreignCoins?.BTC.trim() : "",
-          ltcAddressUsed: coinToUse === CoinFilter.ltc ? storeToUse?.foreignCoins?.LTC.trim() : ""
+          ltcAddressUsed: coinToUse === CoinFilter.ltc ? storeToUse?.foreignCoins?.LTC.trim() : "",
+          dogeAddressUsed: coinToUse === CoinFilter.doge ? storeToUse?.foreignCoins?.DOGE.trim() : "",
+          dgbAddressUsed: coinToUse === CoinFilter.dgb ? storeToUse?.foreignCoins?.DGB.trim() : "",
+          rvnAddressUsed: coinToUse === CoinFilter.rvn ? storeToUse?.foreignCoins?.RVN.trim() : ""
         },
         communicationMethod: ["Q-Mail"],
       };
@@ -555,7 +693,10 @@ export const Cart = () => {
           transactionSignature: signature,
           arrrAddressUsed: coinToUse === CoinFilter.arrr ? storeToUse?.foreignCoins?.ARRR.trim() : "",
           btcAddressUsed: coinToUse === CoinFilter.btc ? storeToUse?.foreignCoins?.BTC.trim() : "",
-          ltcAddressUsed: coinToUse === CoinFilter.ltc ? storeToUse?.foreignCoins?.LTC.trim() : ""
+          ltcAddressUsed: coinToUse === CoinFilter.ltc ? storeToUse?.foreignCoins?.LTC.trim() : "",
+          dogeAddressUsed: coinToUse === CoinFilter.doge ? storeToUse?.foreignCoins?.DOGE.trim() : "",
+          dgbAddressUsed: coinToUse === CoinFilter.dgb ? storeToUse?.foreignCoins?.DGB.trim() : "",
+          rvnAddressUsed: coinToUse === CoinFilter.rvn ? storeToUse?.foreignCoins?.RVN.trim() : ""
         },
         communicationMethod: ["Q-Mail"],
       };
@@ -907,6 +1048,9 @@ export const Cart = () => {
   const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
   const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
   const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
+  const priceDoge = product?.price?.find(item => item?.currency === CoinFilter.doge)?.value;
+  const priceDgb = product?.price?.find(item => item?.currency === CoinFilter.dgb)?.value;
+  const priceRvn = product?.price?.find(item => item?.currency === CoinFilter.rvn)?.value;
 
   if(coinToUse === CoinFilter.arrr && priceArrr) {
     price = +priceArrr
@@ -914,6 +1058,12 @@ export const Cart = () => {
     price = +priceBtc
   } else if(coinToUse === CoinFilter.ltc && priceLtc) {
     price = +priceLtc
+  } else if(coinToUse === CoinFilter.doge && priceDoge) {
+    price = +priceDoge
+  } else if(coinToUse === CoinFilter.dgb && priceDgb) {
+    price = +priceDgb
+  } else if(coinToUse === CoinFilter.rvn && priceRvn) {
+    price = +priceRvn
   } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
     price = +price * exchangeRate
   }
@@ -1155,6 +1305,9 @@ export const Cart = () => {
                       const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
                       const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
                       const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
+                      const priceDoge = product?.price?.find(item => item?.currency === CoinFilter.doge)?.value;
+                      const priceDgb = product?.price?.find(item => item?.currency === CoinFilter.dgb)?.value;
+                      const priceRvn = product?.price?.find(item => item?.currency === CoinFilter.rvn)?.value;
                     
                       if(coinToUse === CoinFilter.arrr && priceArrr) {
                         price = +priceArrr
@@ -1162,6 +1315,12 @@ export const Cart = () => {
                         price = +priceBtc
                       } else if(coinToUse === CoinFilter.ltc && priceLtc) {
                         price = +priceLtc
+                      } else if(coinToUse === CoinFilter.doge && priceDoge) {
+                        price = +priceDoge
+                      } else if(coinToUse === CoinFilter.dgb && priceDgb) {
+                        price = +priceDgb
+                      } else if(coinToUse === CoinFilter.rvn && priceRvn) {
+                        price = +priceRvn
                       } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
                         price = +price * exchangeRate
                       }
@@ -1215,6 +1374,27 @@ export const Cart = () => {
                                   color={theme.palette.text.primary}
                                   />
                                     )}
+                                   {coinToUse === CoinFilter.doge && (
+                                 <DOGESVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                                   {coinToUse === CoinFilter.dgb && (
+                                 <DGBSVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                                   {coinToUse === CoinFilter.rvn && (
+                                 <RVNSVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
                                  {price}
                                 </span>
                               </ProductPriceFont>
@@ -1245,6 +1425,27 @@ export const Cart = () => {
                                     )}
                                    {coinToUse === CoinFilter.ltc && (
                                  <LTCSVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                                   {coinToUse === CoinFilter.doge && (
+                                 <DOGESVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                                   {coinToUse === CoinFilter.dgb && (
+                                 <DGBSVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                                   {coinToUse === CoinFilter.rvn && (
+                                 <RVNSVG
                                   height={"20"}
                                   width={"20"}
                                   color={theme.palette.text.primary}
@@ -1332,6 +1533,9 @@ export const Cart = () => {
                     const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
                     const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
                     const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
+                    const priceDoge = product?.price?.find(item => item?.currency === CoinFilter.doge)?.value;
+                    const priceDgb = product?.price?.find(item => item?.currency === CoinFilter.dgb)?.value;
+                    const priceRvn = product?.price?.find(item => item?.currency === CoinFilter.rvn)?.value;
                   
                     if(coinToUse === CoinFilter.arrr && priceArrr) {
                       price = +priceArrr
@@ -1339,6 +1543,12 @@ export const Cart = () => {
                       price = +priceBtc
                     } else if(coinToUse === CoinFilter.ltc && priceLtc) {
                       price = +priceLtc
+                    } else if(coinToUse === CoinFilter.doge && priceDoge) {
+                      price = +priceDoge
+                    } else if(coinToUse === CoinFilter.ltc && priceDgb) {
+                      price = +priceDgb
+                    } else if(coinToUse === CoinFilter.ltc && priceRvn) {
+                      price = +priceRvn
                     } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
                       price = +price * exchangeRate
                     }
@@ -1379,6 +1589,30 @@ export const Cart = () => {
                                   color={theme.palette.text.primary}
                                   />
                                     )}
+                         
+                            {coinToUse === CoinFilter.doge && (
+                                 <DOGESVG
+                                  height={"18"}
+                                  width={"18"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                         
+                            {coinToUse === CoinFilter.dgb && (
+                                 <DGBSVG
+                                  height={"18"}
+                                  width={"18"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                         
+                            {coinToUse === CoinFilter.rvn && (
+                                 <RVNSVG
+                                  height={"18"}
+                                  width={"18"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
                           {price}
                         </TotalSumItemTitle>
                       </TotalSumItem>
@@ -1410,6 +1644,27 @@ export const Cart = () => {
                   )}
                   {coinToUse === CoinFilter.ltc && (
                    <LTCSVG
+                height={"22"}
+                width={"22"}
+                color={theme.palette.text.primary}
+              />
+                  )}
+                  {coinToUse === CoinFilter.doge && (
+                   <DOGESVG
+                height={"22"}
+                width={"22"}
+                color={theme.palette.text.primary}
+              />
+                  )}
+                  {coinToUse === CoinFilter.dgb && (
+                   <DGBSVG
+                height={"22"}
+                width={"22"}
+                color={theme.palette.text.primary}
+              />
+                  )}
+                  {coinToUse === CoinFilter.rvn && (
+                   <RVNSVG
                 height={"22"}
                 width={"22"}
                 color={theme.palette.text.primary}
@@ -1494,6 +1749,39 @@ export const Cart = () => {
                             height="22"
                           />
                           LTC
+                        </CustomMenuItem>
+                        <CustomMenuItem
+                          style={{ display: "flex", gap: "5px" }}
+                          value="DOGE"
+                        >
+                          <DOGESVG
+                            color={theme.palette.text.primary}
+                            width="22"
+                            height="22"
+                          />
+                          DOGE
+                        </CustomMenuItem>
+                        <CustomMenuItem
+                          style={{ display: "flex", gap: "5px" }}
+                          value="DGB"
+                        >
+                          <DGBSVG
+                            color={theme.palette.text.primary}
+                            width="22"
+                            height="22"
+                          />
+                          DGB
+                        </CustomMenuItem>
+                        <CustomMenuItem
+                          style={{ display: "flex", gap: "5px" }}
+                          value="RVN"
+                        >
+                          <RVNSVG
+                            color={theme.palette.text.primary}
+                            width="22"
+                            height="22"
+                          />
+                          RVN
                         </CustomMenuItem>
                       </CustomSelect>
                     </FormControl>

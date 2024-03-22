@@ -42,6 +42,9 @@ import {
 import { ARRRSVG } from "../../assets/svgs/ARRRSVG";
 import { BTCSVG } from "../../assets/svgs/BTCSVG";
 import { LTCSVG } from "../../assets/svgs/LTCSVG";
+import { DOGESVG } from "../../assets/svgs/DOGESVG";
+import { DGBSVG } from "../../assets/svgs/DGBSVG";
+import { RVNSVG } from "../../assets/svgs/RVNSVG";
 import { CoinFilter } from "../Store/Store/Store";
 import { setIsLoadingGlobal } from "../../state/features/globalSlice";
 
@@ -145,6 +148,78 @@ export const ProductPage = () => {
       );
     }
   };
+  const calculateDOGEExchangeRate = async () => {
+    try {
+      const url = "/crosschain/price/DOGECOIN?maxtrades=10&inverse=true";
+      const info = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const responseDataStore = await info.text();
+
+      const ratio = +responseDataStore / 100000000;
+      if (isNaN(ratio)) throw new Error("Cannot get exchange rate");
+      setExchangeRate(ratio);
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort));
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+  };
+  const calculateDGBExchangeRate = async () => {
+    try {
+      const url = "/crosschain/price/DIGIBYTE?maxtrades=10&inverse=true";
+      const info = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const responseDataStore = await info.text();
+
+      const ratio = +responseDataStore / 100000000;
+      if (isNaN(ratio)) throw new Error("Cannot get exchange rate");
+      setExchangeRate(ratio);
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort));
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+  };
+  const calculateRVNExchangeRate = async () => {
+    try {
+      const url = "/crosschain/price/RAVENCOIN?maxtrades=10&inverse=true";
+      const info = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const responseDataStore = await info.text();
+
+      const ratio = +responseDataStore / 100000000;
+      if (isNaN(ratio)) throw new Error("Cannot get exchange rate");
+      setExchangeRate(ratio);
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort));
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+  };
 
   const storeToUse = useMemo(() => {
     return currentViewedStore;
@@ -156,6 +231,9 @@ export const ProductPage = () => {
     await calculateARRRExchangeRate();
     await calculateBTCExchangeRate();
     await calculateLTCExchangeRate();
+    await calculateDOGEExchangeRate();
+    await calculateDGBExchangeRate();
+    await calculateRVNExchangeRate();
     dispatch(setIsLoadingGlobal(false));
   };
 
@@ -173,6 +251,21 @@ export const ProductPage = () => {
     } else if (
       preferredCoin === CoinFilter.ltc &&
       storeToUse?.supportedCoins?.includes(CoinFilter.ltc)
+    ) {
+      switchCoin();
+    } else if (
+      preferredCoin === CoinFilter.doge &&
+      storeToUse?.supportedCoins?.includes(CoinFilter.doge)
+    ) {
+      switchCoin();
+    } else if (
+      preferredCoin === CoinFilter.dgb &&
+      storeToUse?.supportedCoins?.includes(CoinFilter.dgb)
+    ) {
+      switchCoin();
+    } else if (
+      preferredCoin === CoinFilter.rvn &&
+      storeToUse?.supportedCoins?.includes(CoinFilter.rvn)
     ) {
       switchCoin();
     }
@@ -200,6 +293,21 @@ export const ProductPage = () => {
       storeToUse?.supportedCoins?.includes(CoinFilter.ltc)
     ) {
       return CoinFilter.ltc;
+    } else if (
+      preferredCoin === CoinFilter.doge &&
+      storeToUse?.supportedCoins?.includes(CoinFilter.doge)
+    ) {
+      return CoinFilter.doge;
+    } else if (
+      preferredCoin === CoinFilter.dgb &&
+      storeToUse?.supportedCoins?.includes(CoinFilter.dgb)
+    ) {
+      return CoinFilter.dgb;
+    } else if (
+      preferredCoin === CoinFilter.rvn &&
+      storeToUse?.supportedCoins?.includes(CoinFilter.rvn)
+    ) {
+      return CoinFilter.rvn;
     } else {
       return CoinFilter.qort;
     }
@@ -257,6 +365,15 @@ export const ProductPage = () => {
   const priceLtc = product?.price?.find(
     item => item?.currency === CoinFilter.ltc
   )?.value;
+  const priceDoge = product?.price?.find(
+    item => item?.currency === CoinFilter.doge
+  )?.value;
+  const priceDgb = product?.price?.find(
+    item => item?.currency === CoinFilter.dgb
+  )?.value;
+  const priceRvn = product?.price?.find(
+    item => item?.currency === CoinFilter.rvn
+  )?.value;
 
   if (coinToUse === CoinFilter.arrr && priceArrr) {
     price = +priceArrr;
@@ -264,6 +381,12 @@ export const ProductPage = () => {
     price = +priceBtc;
   } else if (coinToUse === CoinFilter.ltc && priceLtc) {
     price = +priceLtc;
+  } else if (coinToUse === CoinFilter.doge && priceDoge) {
+    price = +priceDoge;
+  } else if (coinToUse === CoinFilter.dgb && priceDgb) {
+    price = +priceDgb;
+  } else if (coinToUse === CoinFilter.rvn && priceRvn) {
+    price = +priceRvn;
   } else if (price && exchangeRate && coinToUse !== CoinFilter.qort) {
     price = +price * exchangeRate;
   }
@@ -391,6 +514,36 @@ export const ProductPage = () => {
           {coinToUse === CoinFilter.ltc && (
             <ProductPrice>
               <LTCSVG
+                height={"26"}
+                width={"26"}
+                color={theme.palette.text.primary}
+              />{" "}
+              {price}
+            </ProductPrice>
+          )}
+          {coinToUse === CoinFilter.doge && (
+            <ProductPrice>
+              <DOGESVG
+                height={"26"}
+                width={"26"}
+                color={theme.palette.text.primary}
+              />{" "}
+              {price}
+            </ProductPrice>
+          )}
+          {coinToUse === CoinFilter.dgb && (
+            <ProductPrice>
+              <DGBSVG
+                height={"26"}
+                width={"26"}
+                color={theme.palette.text.primary}
+              />{" "}
+              {price}
+            </ProductPrice>
+          )}
+          {coinToUse === CoinFilter.rvn && (
+            <ProductPrice>
+              <RVNSVG
                 height={"26"}
                 width={"26"}
                 color={theme.palette.text.primary}

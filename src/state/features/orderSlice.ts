@@ -45,6 +45,9 @@ interface Payment {
   arrrAddressUsed?:string
   btcAddressUsed?:string
   ltcAddressUsed?:string
+  dogeAddressUsed?:string
+  dgbAddressUsed?:string
+  rvnAddressUsed?:string
 }
 enum CommunicationMethod {
   QMail = 'Q-Mail'

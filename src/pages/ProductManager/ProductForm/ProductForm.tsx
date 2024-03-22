@@ -45,6 +45,9 @@ interface ProductObj {
   priceARRR?: number;
   priceBTC?: number;
   priceLTC?: number;
+  priceDOGE?: number;
+  priceDGB?: number;
+  priceRVN?: number;
   priceQORT?: number;
 }
 
@@ -89,6 +92,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         ?.value || "";
       const editProductLTCPrice =
       editProduct?.price?.find((item: Price) => item?.currency === CoinFilter.ltc)
+        ?.value || "";
+      const editProductDOGEPrice =
+      editProduct?.price?.find((item: Price) => item?.currency === CoinFilter.doge)
+        ?.value || "";
+      const editProductDGBPrice =
+      editProduct?.price?.find((item: Price) => item?.currency === CoinFilter.dgb)
+        ?.value || "";
+      const editProductRVNPrice =
+      editProduct?.price?.find((item: Price) => item?.currency === CoinFilter.rvn)
         ?.value || "";
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -319,6 +331,48 @@ export const ProductForm: React.FC<ProductFormProps> = ({
          maxValue={Number.MAX_SAFE_INTEGER}
          allowDecimals={true}
          onChangeFunc={(val)=>handleProductPriceChangeForeign(val, CoinFilter.ltc)}
+         required={false}
+       />
+      )}
+      {currentStore?.supportedCoins?.includes(CoinFilter.doge) && (
+         <CustomNumberField
+         name="doge-price"
+         label="Price in DOGE"
+         variant={Variant.filled}
+         initialValue={editProductDOGEPrice.toString()}
+         addIconButtons={false}
+         minValue={0}
+         maxValue={Number.MAX_SAFE_INTEGER}
+         allowDecimals={true}
+         onChangeFunc={(val)=>handleProductPriceChangeForeign(val, CoinFilter.doge)}
+         required={false}
+       />
+      )}
+      {currentStore?.supportedCoins?.includes(CoinFilter.dgb) && (
+         <CustomNumberField
+         name="dgb-price"
+         label="Price in DGB"
+         variant={Variant.filled}
+         initialValue={editProductDGBPrice.toString()}
+         addIconButtons={false}
+         minValue={0}
+         maxValue={Number.MAX_SAFE_INTEGER}
+         allowDecimals={true}
+         onChangeFunc={(val)=>handleProductPriceChangeForeign(val, CoinFilter.dgb)}
+         required={false}
+       />
+      )}
+      {currentStore?.supportedCoins?.includes(CoinFilter.rvn) && (
+         <CustomNumberField
+         name="rvn-price"
+         label="Price in RVN"
+         variant={Variant.filled}
+         initialValue={editProductRVNPrice.toString()}
+         addIconButtons={false}
+         minValue={0}
+         maxValue={Number.MAX_SAFE_INTEGER}
+         allowDecimals={true}
+         onChangeFunc={(val)=>handleProductPriceChangeForeign(val, CoinFilter.rvn)}
          required={false}
        />
       )}

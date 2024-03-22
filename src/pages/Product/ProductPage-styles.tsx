@@ -3,9 +3,15 @@ import { Box, Button, Switch, Typography } from "@mui/material";
 import ARRRLogoGold from "../../assets/img/arrr.png";
 import BTCLogoColor from "../../assets/img/btc.png";
 import LTCLogoColor from "../../assets/img/ltc.png";
+import DOGELogoColor from "../../assets/img/doge.png";
+import DGBLogoColor from "../../assets/img/dgb.png";
+import RVNLogoColor from "../../assets/img/rvn.png";
 import ARRRLogoWhite from "../../assets/img/ArrrLogoWhite.png";
 import BTCLogoWhite from "../../assets/img/BtcLogoWhite.png";
 import LTCLogoWhite from "../../assets/img/LtcLogoWhite.png";
+import DOGELogoWhite from "../../assets/img/DogeLogoWhite.png";
+import DGBLogoWhite from "../../assets/img/DgbLogoWhite.png";
+import RVNLogoWhite from "../../assets/img/RvnLogoWhite.png";
 
 export const ProductLayout = styled(Box)(({ theme }) => ({
   position: "relative",

@@ -49,6 +49,9 @@ import { QortalSVG } from "../../assets/svgs/QortalSVG";
 import { ARRRSVG } from "../../assets/svgs/ARRRSVG";
 import { BTCSVG } from "../../assets/svgs/BTCSVG";
 import { LTCSVG } from "../../assets/svgs/LTCSVG";
+import { DOGESVG } from "../../assets/svgs/DOGESVG";
+import { DGBSVG } from "../../assets/svgs/DGBSVG";
+import { RVNSVG } from "../../assets/svgs/RVNSVG";
 import { ReusableModal } from "./ReusableModal";
 import { DATA_CONTAINER_BASE, STORE_BASE } from "../../constants/identifiers";
 import { objectToBase64 } from "../../utils/toBase64";
@@ -96,6 +99,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
   const [arrrWalletAddress, setArrrWalletAddress] = useState<string>("");
   const [btcWalletAddress, setBtcWalletAddress] = useState<string>("");
   const [ltcWalletAddress, setLtcWalletAddress] = useState<string>("");
+  const [dogeWalletAddress, setDogeWalletAddress] = useState<string>("");
+  const [dgbWalletAddress, setDgbWalletAddress] = useState<string>("");
+  const [rvnWalletAddress, setRvnWalletAddress] = useState<string>("");
   const [showAdvancedSettings, setShowAdvancedSettings] =
     useState<boolean>(false);
   const [showCreateNewDataContainerModal, setShowCreateNewDataContainerModal] =
@@ -115,6 +121,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
         ARRR: arrrWalletAddress,
         BTC: btcWalletAddress,
         LTC: ltcWalletAddress,
+        DOGE: dogeWalletAddress,
+        DGB: dgbWalletAddress,
+        RVN: rvnWalletAddress,
       };
       supportedCoinsSelected
         .filter(coin => coin !== "QORT")
@@ -132,6 +141,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
           ARRR: arrrWalletAddress,
           BTC: btcWalletAddress,
           LTC: ltcWalletAddress,
+          DOGE: dogeWalletAddress,
+          DGB: dgbWalletAddress,
+          RVN: rvnWalletAddress,
         },
         supportedCoins: supportedCoinsSelected,
       });
@@ -153,6 +165,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
       setArrrWalletAddress(currentStore?.foreignCoins?.ARRR || "")
       setBtcWalletAddress(currentStore?.foreignCoins?.BTC || "")
       setLtcWalletAddress(currentStore?.foreignCoins?.LTC || "")
+      setDogeWalletAddress(currentStore?.foreignCoins?.DOGE || "")
+      setDgbWalletAddress(currentStore?.foreignCoins?.DGB || "")
+      setRvnWalletAddress(currentStore?.foreignCoins?.RVN || "")
     }
   }, [currentStore, storeId, open]);
 
@@ -167,6 +182,9 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
     setArrrWalletAddress("");
     setBtcWalletAddress("");
     setLtcWalletAddress("");
+    setDogeWalletAddress("");
+    setDgbWalletAddress("");
+    setRvnWalletAddress("");
     setSupportedCoinsSelected(["QORT"]);
     setShowAdvancedSettings(false);
     dispatch(toggleCreateStoreModal(false));
@@ -196,6 +214,15 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
       }
       else if (coin === 'LTC' && res?.address) {
         setLtcWalletAddress(res.address);
+      }
+      else if (coin === 'DOGE' && res?.address) {
+        setDogeWalletAddress(res.address);
+      }
+      else if (coin === 'DGB' && res?.address) {
+        setDgbWalletAddress(res.address);
+      }
+      else if (coin === 'RVN' && res?.address) {
+        setRvnWalletAddress(res.address);
       }
     } catch (error) {
       console.error(error);
@@ -473,6 +500,102 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
             </IconButton>
           </Tooltip>
         </WalletRow>
+        {/* DOGE Wallet Input Field */}
+        <WalletRow>
+          <CustomInputField
+            id="modal-doge-wallet-input"
+            label="DOGE Wallet Address"
+            value={dogeWalletAddress}
+            onChange={(e: any) => {
+              setDogeWalletAddress(e.target.value);
+            }}
+            fullWidth
+            required
+            variant="filled"
+          />
+          <Tooltip
+            TransitionComponent={Zoom}
+            placement="top"
+            arrow={true}
+            title="Import your DOGE Wallet Address from your current account"
+          >
+            <IconButton
+              disableFocusRipple={true}
+              disableRipple={true}
+              onClick={() => importAddress("DOGE")}
+            >
+              <DownloadWalletIcon
+                color={theme.palette.text.primary}
+                height="40"
+                width="40"
+              />
+            </IconButton>
+          </Tooltip>
+        </WalletRow>
+        {/* DGB Wallet Input Field */}
+        <WalletRow>
+          <CustomInputField
+            id="modal-dgb-wallet-input"
+            label="DGB Wallet Address"
+            value={dgbWalletAddress}
+            onChange={(e: any) => {
+              setDgbWalletAddress(e.target.value);
+            }}
+            fullWidth
+            required
+            variant="filled"
+          />
+          <Tooltip
+            TransitionComponent={Zoom}
+            placement="top"
+            arrow={true}
+            title="Import your DGB Wallet Address from your current account"
+          >
+            <IconButton
+              disableFocusRipple={true}
+              disableRipple={true}
+              onClick={() => importAddress("DGB")}
+            >
+              <DownloadWalletIcon
+                color={theme.palette.text.primary}
+                height="40"
+                width="40"
+              />
+            </IconButton>
+          </Tooltip>
+        </WalletRow>
+        {/* RVN Wallet Input Field */}
+        <WalletRow>
+          <CustomInputField
+            id="modal-rvn-wallet-input"
+            label="RVN Wallet Address"
+            value={rvnWalletAddress}
+            onChange={(e: any) => {
+              setRvnWalletAddress(e.target.value);
+            }}
+            fullWidth
+            required
+            variant="filled"
+          />
+          <Tooltip
+            TransitionComponent={Zoom}
+            placement="top"
+            arrow={true}
+            title="Import your RVN Wallet Address from your current account"
+          >
+            <IconButton
+              disableFocusRipple={true}
+              disableRipple={true}
+              onClick={() => importAddress("RVN")}
+            >
+              <DownloadWalletIcon
+                color={theme.palette.text.primary}
+                height="40"
+                width="40"
+              />
+            </IconButton>
+          </Tooltip>
+        </WalletRow>
         <FilterSelect
           disableClearable
           multiple
@@ -526,6 +649,24 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
                   />
                 ) : option === "LTC" ? (
                   <LTCSVG
+                    height="22"
+                    width="22"
+                    color={theme.palette.text.primary}
+                  />
+                ) : option === "DOGE" ? (
+                  <DOGESVG
+                    height="22"
+                    width="22"
+                    color={theme.palette.text.primary}
+                  />
+                ) : option === "DGB" ? (
+                  <DGBSVG
+                    height="22"
+                    width="22"
+                    color={theme.palette.text.primary}
+                  />
+                ) : option === "RVN" ? (
+                  <RVNSVG
                     height="22"
                     width="22"
                     color={theme.palette.text.primary}

@@ -19,6 +19,9 @@ import { AcceptedCoinRow } from "../Store/Store-styles";
 import { ARRRSVG } from "../../../assets/svgs/ARRRSVG";
 import { BTCSVG } from "../../../assets/svgs/BTCSVG";
 import { LTCSVG } from "../../../assets/svgs/LTCSVG";
+import { DOGESVG } from "../../../assets/svgs/DOGESVG";
+import { DGBSVG } from "../../../assets/svgs/DGBSVG";
+import { RVNSVG } from "../../../assets/svgs/RVNSVG";
 import { CoinFilter } from "../Store/Store";
 
 function addEllipsis(str: string, limit: number) {
@@ -77,6 +80,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, exchangeRate,
   const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
   const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
   const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
+  const priceDoge = product?.price?.find(item => item?.currency === CoinFilter.doge)?.value;
+  const priceDgb = product?.price?.find(item => item?.currency === CoinFilter.dgb)?.value;
+  const priceRvn = product?.price?.find(item => item?.currency === CoinFilter.rvn)?.value;
   if(filterCoin === CoinFilter.arrr && priceArrr) {
     price = +priceArrr
   }
@@ -85,6 +91,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, exchangeRate,
   }
   else if(filterCoin === CoinFilter.ltc && priceLtc) {
     price = +priceLtc
+  }
+  else if(filterCoin === CoinFilter.doge && priceDoge) {
+    price = +priceDoge
+  }
+  else if(filterCoin === CoinFilter.dgb && priceDgb) {
+    price = +priceDgb
+  }
+  else if(filterCoin === CoinFilter.rvn && priceRvn) {
+    price = +priceRvn
   }
   else if(price && exchangeRate && filterCoin !== CoinFilter.qort){
     price = +price * exchangeRate
@@ -153,6 +168,36 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, exchangeRate,
           {filterCoin === CoinFilter.ltc && (
              <AcceptedCoinRow>
              <LTCSVG
+               color={theme.palette.text.primary}
+               height={"23"}
+               width={"23"}
+             />{" "}
+             {price}
+           </AcceptedCoinRow>
+          )}
+          {filterCoin === CoinFilter.doge && (
+             <AcceptedCoinRow>
+             <DOGESVG
+               color={theme.palette.text.primary}
+               height={"23"}
+               width={"23"}
+             />{" "}
+             {price}
+           </AcceptedCoinRow>
+          )}
+          {filterCoin === CoinFilter.dgb && (
+             <AcceptedCoinRow>
+             <DGBSVG
+               color={theme.palette.text.primary}
+               height={"23"}
+               width={"23"}
+             />{" "}
+             {price}
+           </AcceptedCoinRow>
+          )}
+          {filterCoin === CoinFilter.rvn && (
+             <AcceptedCoinRow>
+             <RVNSVG
                color={theme.palette.text.primary}
                height={"23"}
                width={"23"}

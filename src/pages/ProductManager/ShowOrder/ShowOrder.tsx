@@ -56,6 +56,9 @@ import { CoinFilter } from "../../Store/Store/Store";
 import { ARRRSVG } from "../../../assets/svgs/ARRRSVG";
 import { BTCSVG } from "../../../assets/svgs/BTCSVG";
 import { LTCSVG } from "../../../assets/svgs/LTCSVG";
+import { DOGESVG } from "../../../assets/svgs/DOGESVG";
+import { DGBSVG } from "../../../assets/svgs/DGBSVG";
+import { RVNSVG } from "../../../assets/svgs/RVNSVG";
 
 /* <QortalSVG /> must be replaced by <ARRRSVG /> everywhere here depending on the payment info */
 
@@ -422,6 +425,27 @@ export const ShowOrder: FC<ShowOrderProps> = ({
                                    color={theme.palette.text.primary}
                                  />
                                 )}
+                                {coinToUse === CoinFilter.doge && (
+                                   <DOGESVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.dgb && (
+                                   <DGBSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.rvn && (
+                                   <RVNSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
                               </OrderQuantityRow>
                               <TotalPriceRow>
                                 Total: {product?.totalProductPrice}
@@ -448,6 +472,27 @@ export const ShowOrder: FC<ShowOrderProps> = ({
                                 )}
                                 {coinToUse === CoinFilter.ltc && (
                                    <LTCSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.doge && (
+                                   <DOGESVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.dgb && (
+                                   <DGBSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.rvn && (
+                                   <RVNSVG
                                    width={"22"}
                                    height={"22"}
                                    color={theme.palette.text.primary}
@@ -487,6 +532,27 @@ export const ShowOrder: FC<ShowOrderProps> = ({
                                 )}
                                 {coinToUse === CoinFilter.ltc && (
                                    <LTCSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.doge && (
+                                   <DOGESVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.dgb && (
+                                   <DGBSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.rvn && (
+                                   <RVNSVG
                                    width={"22"}
                                    height={"22"}
                                    color={theme.palette.text.primary}
@@ -557,6 +623,42 @@ export const ShowOrder: FC<ShowOrderProps> = ({
                           <span>Payment sent to</span>{" "}
                           <span style={{ fontWeight: 300 }}>
                             {order?.payment?.ltcAddressUsed}
+                          </span>
+                          </>
+                           )}
+                   {coinToUse === CoinFilter.doge && (
+                    <>
+                     <span>Currency:</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {coinToUse}
+                          </span>
+                          <span>Payment sent to</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {order?.payment?.dogeAddressUsed}
+                          </span>
+                          </>
+                           )}
+                   {coinToUse === CoinFilter.dgb && (
+                    <>
+                     <span>Currency:</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {coinToUse}
+                          </span>
+                          <span>Payment sent to</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {order?.payment?.dgbAddressUsed}
+                          </span>
+                          </>
+                           )}
+                   {coinToUse === CoinFilter.rvn && (
+                    <>
+                     <span>Currency:</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {coinToUse}
+                          </span>
+                          <span>Payment sent to</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {order?.payment?.rvnAddressUsed}
                           </span>
                           </>
                            )}

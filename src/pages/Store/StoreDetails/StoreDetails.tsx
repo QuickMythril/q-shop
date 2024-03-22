@@ -25,6 +25,9 @@ import { QortalSVG } from "../../../assets/svgs/QortalSVG";
 import { ARRRSVG } from "../../../assets/svgs/ARRRSVG";
 import { BTCSVG } from "../../../assets/svgs/BTCSVG";
 import { LTCSVG } from "../../../assets/svgs/LTCSVG";
+import { DOGESVG } from "../../../assets/svgs/DOGESVG";
+import { DGBSVG } from "../../../assets/svgs/DGBSVG";
+import { RVNSVG } from "../../../assets/svgs/RVNSVG";
 import { ForeignCoins } from "../../../components/modals/CreateStoreModal";
 
 interface StoreDetailsProps {
@@ -154,6 +157,27 @@ export const StoreDetails: FC<StoreDetailsProps> = ({
                   )}
                {foreignCoins?.LTC && (
                    <LTCSVG
+                   color={theme.palette.text.primary}
+                   width={"32px"}
+                   height={"32px"}
+                 />
+                  )}
+               {foreignCoins?.DOGE && (
+                   <DOGESVG
+                   color={theme.palette.text.primary}
+                   width={"32px"}
+                   height={"32px"}
+                 />
+                  )}
+               {foreignCoins?.DGB && (
+                   <DGBSVG
+                   color={theme.palette.text.primary}
+                   width={"32px"}
+                   height={"32px"}
+                 />
+                  )}
+               {foreignCoins?.RVN && (
+                   <RVNSVG
                    color={theme.palette.text.primary}
                    width={"32px"}
                    height={"32px"}
