@@ -882,8 +882,8 @@ export const Store = () => {
                 }}
               >
                 {username === user?.name
-                  ? currentStore?.title
-                  : currentViewedStore?.title}
+                  ? currentStore?.title + " 🛈"
+                  : currentViewedStore?.title + " 🛈"}
               </StoreTitle>
               {averageRatingLoader ? (
                 <CircularProgress />
