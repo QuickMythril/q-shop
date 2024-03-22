@@ -86,6 +86,8 @@ import {
 } from "../../../constants/identifiers";
 import QORT from "../../../assets/img/qort.png";
 import ARRR from "../../../assets/img/arrr.png";
+import BTC from "../../../assets/img/btc.png";
+import LTC from "../../../assets/img/ltc.png";
 import {
   AcceptedCoin,
   ExchangeRateCard,
@@ -114,6 +116,8 @@ enum DateFilter {
 export enum CoinFilter {
   qort = "QORT",
   arrr = "ARRR",
+  btc = "BTC",
+  ltc = "LTC",
 }
 
 export const Store = () => {
@@ -215,9 +219,63 @@ export const Store = () => {
 
   }
 
+  const calculateBTCExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/BITCOIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+
+  const calculateLTCExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/LITECOIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+
   const switchCoin = async ()=> {
     dispatch(setIsLoadingGlobal(true));
     await calculateARRRExchangeRate()
+    await calculateBTCExchangeRate()
+    await calculateLTCExchangeRate()
     dispatch(setIsLoadingGlobal(false));
   }
 
@@ -231,12 +289,20 @@ export const Store = () => {
   useEffect(()=> {
     if(preferredCoin === CoinFilter.arrr && storeToUse?.supportedCoins?.includes(CoinFilter.arrr)){
       switchCoin()
+    } else if(preferredCoin === CoinFilter.btc && storeToUse?.supportedCoins?.includes(CoinFilter.btc)){
+      switchCoin()
+    } else if(preferredCoin === CoinFilter.ltc && storeToUse?.supportedCoins?.includes(CoinFilter.ltc)){
+      switchCoin()
     } 
   }, [preferredCoin, storeToUse])
 
   const coinToUse = useMemo(()=> {
     if(preferredCoin === CoinFilter.arrr && storeToUse?.supportedCoins?.includes(CoinFilter.arrr)){
       return CoinFilter.arrr
+    } else if(preferredCoin === CoinFilter.btc && storeToUse?.supportedCoins?.includes(CoinFilter.btc)){
+      return CoinFilter.btc
+    } else if(preferredCoin === CoinFilter.ltc && storeToUse?.supportedCoins?.includes(CoinFilter.ltc)){
+      return CoinFilter.ltc
     } else {
       return CoinFilter.qort
     }
@@ -799,6 +865,40 @@ export const Store = () => {
               />
             </FiltersRow>
             )}
+            {storeToUse?.foreignCoins?.BTC && storeToUse?.supportedCoins?.includes('BTC') && (
+              <FiltersRow>
+              <AcceptedCoinRow>
+                BTC
+                <AcceptedCoin src={BTC} alt="BTC-logo" />
+              </AcceptedCoinRow>
+              <FiltersCheckbox
+                checked={coinToUse === CoinFilter.btc}
+                onChange={() => {
+                    if (coinToUse !== CoinFilter.btc) {
+                      dispatch(setPreferredCoin(CoinFilter.btc))
+                    } 
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            </FiltersRow>
+            )}
+            {storeToUse?.foreignCoins?.LTC && storeToUse?.supportedCoins?.includes('LTC') && (
+              <FiltersRow>
+              <AcceptedCoinRow>
+                LTC
+                <AcceptedCoin src={LTC} alt="LTC-logo" />
+              </AcceptedCoinRow>
+              <FiltersCheckbox
+                checked={coinToUse === CoinFilter.ltc}
+                onChange={() => {
+                    if (coinToUse !== CoinFilter.ltc) {
+                      dispatch(setPreferredCoin(CoinFilter.ltc))
+                    } 
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            </FiltersRow>
+            )}
             
           </FiltersSubContainer>
           <FiltersTitle>
@@ -853,6 +953,54 @@ export const Store = () => {
                   width={"32"}
                 />
                 <AcceptedCoin src={ARRR} alt="ARRR-logo" />
+              </ExchangeRateRow>
+            </ExchangeRateCard>
+          </FiltersSubContainer>
+          )}
+          {coinToUse === CoinFilter.btc && exchangeRate && (
+            <FiltersSubContainer>
+            <ExchangeRateCard>
+              <ExchangeRateRow>
+                <ExchangeRateTitle>1 QORT = {exchangeRate} BTC</ExchangeRateTitle>
+              </ExchangeRateRow>
+              <ExchangeRateRow>
+                <ExchangeRateSubTitle>
+                  {`Rate calculated by recent trade portal trades`}
+                </ExchangeRateSubTitle>
+               
+              </ExchangeRateRow>
+              <ExchangeRateRow style={{ gap: "10px" }}>
+                <AcceptedCoin src={QORT} alt="QORT-logo" />
+                <CompareArrowsSVG
+                  color={theme.palette.text.primary}
+                  height={"32"}
+                  width={"32"}
+                />
+                <AcceptedCoin src={BTC} alt="BTC-logo" />
+              </ExchangeRateRow>
+            </ExchangeRateCard>
+          </FiltersSubContainer>
+          )}
+          {coinToUse === CoinFilter.ltc && exchangeRate && (
+            <FiltersSubContainer>
+            <ExchangeRateCard>
+              <ExchangeRateRow>
+                <ExchangeRateTitle>1 QORT = {exchangeRate} LTC</ExchangeRateTitle>
+              </ExchangeRateRow>
+              <ExchangeRateRow>
+                <ExchangeRateSubTitle>
+                  {`Rate calculated by recent trade portal trades`}
+                </ExchangeRateSubTitle>
+               
+              </ExchangeRateRow>
+              <ExchangeRateRow style={{ gap: "10px" }}>
+                <AcceptedCoin src={QORT} alt="QORT-logo" />
+                <CompareArrowsSVG
+                  color={theme.palette.text.primary}
+                  height={"32"}
+                  width={"32"}
+                />
+                <AcceptedCoin src={LTC} alt="LTC-logo" />
               </ExchangeRateRow>
             </ExchangeRateCard>
           </FiltersSubContainer>
@@ -917,6 +1065,20 @@ export const Store = () => {
                     style={{ width: "26px", height: "26px" }}
                     src={ARRR}
                     alt="ARRR-logo"
+                  />
+                  )}
+                  {storeToUse?.foreignCoins?.BTC && storeToUse?.supportedCoins?.includes('BTC') && (
+                    <AcceptedCoin
+                    style={{ width: "26px", height: "26px" }}
+                    src={BTC}
+                    alt="BTC-logo"
+                  />
+                  )}
+                  {storeToUse?.foreignCoins?.LTC && storeToUse?.supportedCoins?.includes('LTC') && (
+                    <AcceptedCoin
+                    style={{ width: "26px", height: "26px" }}
+                    src={LTC}
+                    alt="LTC-logo"
                   />
                   )}
                   

@@ -25,7 +25,7 @@ import {
   CancelButton,
   CreateButton,
   CustomInputField,
-  DownloadArrrWalletIcon,
+  DownloadWalletIcon,
   LogoPreviewRow,
   ModalBody,
   ModalTitle,
@@ -47,6 +47,8 @@ import {
 import { supportedCoinsArray } from "../../constants/supported-coins";
 import { QortalSVG } from "../../assets/svgs/QortalSVG";
 import { ARRRSVG } from "../../assets/svgs/ARRRSVG";
+import { BTCSVG } from "../../assets/svgs/BTCSVG";
+import { LTCSVG } from "../../assets/svgs/LTCSVG";
 import { ReusableModal } from "./ReusableModal";
 import { DATA_CONTAINER_BASE, STORE_BASE } from "../../constants/identifiers";
 import { objectToBase64 } from "../../utils/toBase64";
@@ -92,6 +94,8 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
   >(["QORT"]);
   const [qortWalletAddress, setQortWalletAddress] = useState<string>("");
   const [arrrWalletAddress, setArrrWalletAddress] = useState<string>("");
+  const [btcWalletAddress, setBtcWalletAddress] = useState<string>("");
+  const [ltcWalletAddress, setLtcWalletAddress] = useState<string>("");
   const [showAdvancedSettings, setShowAdvancedSettings] =
     useState<boolean>(false);
   const [showCreateNewDataContainerModal, setShowCreateNewDataContainerModal] =
@@ -109,6 +113,8 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
 
       const foreignCoins: ForeignCoins = {
         ARRR: arrrWalletAddress,
+        BTC: btcWalletAddress,
+        LTC: ltcWalletAddress,
       };
       supportedCoinsSelected
         .filter(coin => coin !== "QORT")
@@ -124,6 +130,8 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
         logo,
         foreignCoins: {
           ARRR: arrrWalletAddress,
+          BTC: btcWalletAddress,
+          LTC: ltcWalletAddress,
         },
         supportedCoins: supportedCoinsSelected,
       });
@@ -143,6 +151,8 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
       const selectedCoinsList = [...new Set([...(currentStore?.supportedCoins || []), 'QORT'])];
       setSupportedCoinsSelected(selectedCoinsList)
       setArrrWalletAddress(currentStore?.foreignCoins?.ARRR || "")
+      setBtcWalletAddress(currentStore?.foreignCoins?.BTC || "")
+      setLtcWalletAddress(currentStore?.foreignCoins?.LTC || "")
     }
   }, [currentStore, storeId, open]);
 
@@ -155,6 +165,8 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
     setLocation("");
     setShipsTo("");
     setArrrWalletAddress("");
+    setBtcWalletAddress("");
+    setLtcWalletAddress("");
     setSupportedCoinsSelected(["QORT"]);
     setShowAdvancedSettings(false);
     dispatch(toggleCreateStoreModal(false));
@@ -176,8 +188,14 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
         action: "GET_USER_WALLET",
         coin,
       });
-      if (res?.address) {
+      if (coin === 'ARRR' && res?.address) {
         setArrrWalletAddress(res.address);
+      }
+      else if (coin === 'BTC' && res?.address) {
+        setBtcWalletAddress(res.address);
+      }
+      else if (coin === 'LTC' && res?.address) {
+        setLtcWalletAddress(res.address);
       }
     } catch (error) {
       console.error(error);
@@ -350,7 +368,7 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
             title="Import your QORT Wallet Address from your current account"
           >
             <IconButton disableFocusRipple={true} disableRipple={true}>
-              <DownloadArrrWalletIcon
+              <DownloadWalletIcon
                 color={theme.palette.text.primary}
                 height="40"
                 width="40"
@@ -383,7 +401,71 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
               disableRipple={true}
               onClick={() => importAddress("ARRR")}
             >
-              <DownloadArrrWalletIcon
+              <DownloadWalletIcon
+                color={theme.palette.text.primary}
+                height="40"
+                width="40"
+              />
+            </IconButton>
+          </Tooltip>
+        </WalletRow>
+        {/* BTC Wallet Input Field */}
+        <WalletRow>
+          <CustomInputField
+            id="modal-btc-wallet-input"
+            label="BTC Wallet Address"
+            value={btcWalletAddress}
+            onChange={(e: any) => {
+              setBtcWalletAddress(e.target.value);
+            }}
+            fullWidth
+            required
+            variant="filled"
+          />
+          <Tooltip
+            TransitionComponent={Zoom}
+            placement="top"
+            arrow={true}
+            title="Import your BTC Wallet Address from your current account"
+          >
+            <IconButton
+              disableFocusRipple={true}
+              disableRipple={true}
+              onClick={() => importAddress("BTC")}
+            >
+              <DownloadWalletIcon
+                color={theme.palette.text.primary}
+                height="40"
+                width="40"
+              />
+            </IconButton>
+          </Tooltip>
+        </WalletRow>
+        {/* LTC Wallet Input Field */}
+        <WalletRow>
+          <CustomInputField
+            id="modal-ltc-wallet-input"
+            label="LTC Wallet Address"
+            value={ltcWalletAddress}
+            onChange={(e: any) => {
+              setLtcWalletAddress(e.target.value);
+            }}
+            fullWidth
+            required
+            variant="filled"
+          />
+          <Tooltip
+            TransitionComponent={Zoom}
+            placement="top"
+            arrow={true}
+            title="Import your LTC Wallet Address from your current account"
+          >
+            <IconButton
+              disableFocusRipple={true}
+              disableRipple={true}
+              onClick={() => importAddress("LTC")}
+            >
+              <DownloadWalletIcon
                 color={theme.palette.text.primary}
                 height="40"
                 width="40"
@@ -432,6 +514,18 @@ const MyModal: React.FC<MyModalProps> = ({ open, onClose, onPublish }) => {
                   />
                 ) : option === "ARRR" ? (
                   <ARRRSVG
+                    height="22"
+                    width="22"
+                    color={theme.palette.text.primary}
+                  />
+                ) : option === "BTC" ? (
+                  <BTCSVG
+                    height="22"
+                    width="22"
+                    color={theme.palette.text.primary}
+                  />
+                ) : option === "LTC" ? (
+                  <LTCSVG
                     height="22"
                     width="22"
                     color={theme.palette.text.primary}

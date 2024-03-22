@@ -24,7 +24,7 @@ import {
   CancelButton,
   CreateButton,
   WalletRow,
-  DownloadArrrWalletIcon,
+  DownloadWalletIcon,
 } from "./CreateStoreModal-styles";
 import {
   FilterSelect,
@@ -36,6 +36,8 @@ import {
 import { supportedCoinsArray } from "../../constants/supported-coins";
 import { QortalSVG } from "../../assets/svgs/QortalSVG";
 import { ARRRSVG } from "../../assets/svgs/ARRRSVG";
+import { BTCSVG } from "../../assets/svgs/BTCSVG";
+import { LTCSVG } from "../../assets/svgs/LTCSVG";
 import { setNotification } from "../../state/features/notificationsSlice";
 export interface ForeignCoins {
   [key: string]: string;
@@ -83,6 +85,8 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({
   >(["QORT"]);
   const [qortWalletAddress, setQortWalletAddress] = useState<string>("");
   const [arrrWalletAddress, setArrrWalletAddress] = useState<string>("");
+  const [btcWalletAddress, setBtcWalletAddress] = useState<string>("");
+  const [ltcWalletAddress, setLtcWalletAddress] = useState<string>("");
 
   const handlePublish = async (): Promise<void> => {
     try {
@@ -92,7 +96,9 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({
         return;
       }
       const foreignCoins: ForeignCoins = {
-        ARRR: arrrWalletAddress
+        ARRR: arrrWalletAddress,
+        BTC: btcWalletAddress,
+        LTC: ltcWalletAddress
       }
       supportedCoinsSelected.filter((coin)=> coin !== 'QORT').forEach((item: string)=> {
         if(!foreignCoins[item]) throw new Error(`Please add a ${item} address`)
@@ -105,7 +111,9 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({
         storeIdentifier,
         logo,
         foreignCoins: {
-          ARRR: arrrWalletAddress
+          ARRR: arrrWalletAddress,
+          BTC: btcWalletAddress,
+          LTC: ltcWalletAddress
         },
         supportedCoins: supportedCoinsSelected
       });
@@ -119,6 +127,8 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({
     setDescription("");
     setErrorMessage("");
     setArrrWalletAddress("")
+    setBtcWalletAddress("")
+    setLtcWalletAddress("")
     setSupportedCoinsSelected(["QORT"])
     dispatch(toggleCreateStoreModal(false));
   };
@@ -169,14 +179,20 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({
         coin
       })
       
-      if(res?.address){
+      if(coin === 'ARRR' && res?.address){
         setArrrWalletAddress(res.address)
+      }
+      else if(coin === 'BTC' && res?.address){
+        setBtcWalletAddress(res.address)
+      }
+      else if(coin === 'LTC' && res?.address){
+        setLtcWalletAddress(res.address)
       }
     } catch (error) {
       dispatch(
         setNotification({
           alertType: "error",
-          msg: "Unable to import ARRR address. Please insert it manually",
+          msg: "Unable to import foreign wallet address. Please insert it manually",
         })
       );
     } finally {
@@ -300,7 +316,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({
             title="Import your QORT Wallet Address from your current account"
           >
             <IconButton disableFocusRipple={true} disableRipple={true}>
-              <DownloadArrrWalletIcon
+              <DownloadWalletIcon
                 color={theme.palette.text.primary}
                 height="40"
                 width="40"
@@ -329,7 +345,63 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({
             title="Import your ARRR Wallet Address from your current account"
           >
             <IconButton disableFocusRipple={true} disableRipple={true} onClick={()=> importAddress('ARRR')}>
-              <DownloadArrrWalletIcon
+              <DownloadWalletIcon
+                color={theme.palette.text.primary}
+                height="40"
+                width="40"
+              />
+            </IconButton>
+          </Tooltip>
+        </WalletRow>
+        {/* BTC Wallet Input Field */}
+        <WalletRow>
+          <CustomInputField
+            id="modal-btc-wallet-input"
+            label="BTC Wallet Address"
+            value={btcWalletAddress}
+            onChange={(e: any) => {
+              setBtcWalletAddress(e.target.value);
+            }}
+            fullWidth
+            required
+            variant="filled"
+          />
+          <Tooltip
+            TransitionComponent={Zoom}
+            placement="top"
+            arrow={true}
+            title="Import your BTC Wallet Address from your current account"
+          >
+            <IconButton disableFocusRipple={true} disableRipple={true} onClick={()=> importAddress('BTC')}>
+            <DownloadWalletIcon
+                color={theme.palette.text.primary}
+                height="40"
+                width="40"
+              />
+            </IconButton>
+          </Tooltip>
+        </WalletRow>
+        {/* LTC Wallet Input Field */}
+        <WalletRow>
+          <CustomInputField
+            id="modal-ltc-wallet-input"
+            label="LTC Wallet Address"
+            value={ltcWalletAddress}
+            onChange={(e: any) => {
+              setLtcWalletAddress(e.target.value);
+            }}
+            fullWidth
+            required
+            variant="filled"
+          />
+          <Tooltip
+            TransitionComponent={Zoom}
+            placement="top"
+            arrow={true}
+            title="Import your LTC Wallet Address from your current account"
+          >
+            <IconButton disableFocusRipple={true} disableRipple={true} onClick={()=> importAddress('LTC')}>
+            <DownloadWalletIcon
                 color={theme.palette.text.primary}
                 height="40"
                 width="40"
@@ -379,6 +451,18 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({
                   />
                 ) : option === "ARRR" ? (
                   <ARRRSVG
+                    height="22"
+                    width="22"
+                    color={theme.palette.text.primary}
+                  />
+                ) : option === "BTC" ? (
+                  <BTCSVG
+                    height="22"
+                    width="22"
+                    color={theme.palette.text.primary}
+                  />
+                ) : option === "LTC" ? (
+                  <LTCSVG
                     height="22"
                     width="22"
                     color={theme.palette.text.primary}

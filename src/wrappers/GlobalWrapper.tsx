@@ -334,7 +334,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
 
         // Publish Store to QDN
         let metadescription =
-          `**coins:QORTtrue,ARRR${supportedCoins.includes("ARRR")}**` +
+          `**coins:QORTtrue,ARRR${supportedCoins.includes("ARRR")},BTC${supportedCoins.includes("BTC")},LTC${supportedCoins.includes("LTC")}**` +
           description.slice(0, 180);
 
         const resourceStore = {
@@ -485,7 +485,7 @@ const GlobalWrapper: React.FC<Props> = ({ children, setTheme }) => {
         const storeToBase64 = await objectToBase64(storeObj);
 
         let metadescription =
-          `**coins:QORTtrue,ARRR${supportedCoins.includes("ARRR")}**` +
+          `**coins:QORTtrue,ARRR${supportedCoins.includes("ARRR")},BTC${supportedCoins.includes("BTC")},LTC${supportedCoins.includes("LTC")}**` +
           description.slice(0, 180);
         const resourceResponse = await qortalRequest({
           action: "PUBLISH_QDN_RESOURCE",

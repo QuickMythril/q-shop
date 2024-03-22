@@ -77,8 +77,12 @@ import { CloseIconModal } from "../Store/StoreReviews/StoreReviews-styles";
 import { ORDER_BASE, STORE_BASE } from "../../constants/identifiers";
 import QORTLogo from "../../assets/img/qort.png";
 import ARRRLogo from "../../assets/img/arrr.png";
+import BTCLogo from "../../assets/img/btc.png";
+import LTCLogo from "../../assets/img/ltc.png";
 import { AcceptedCoin } from "../StoreList/StoreList-styles";
 import { ARRRSVG } from "../../assets/svgs/ARRRSVG";
+import { BTCSVG } from "../../assets/svgs/BTCSVG";
+import { LTCSVG } from "../../assets/svgs/LTCSVG";
 import { setPreferredCoin } from "../../state/features/storeSlice";
 import { CoinFilter } from "../Store/Store/Store";
 import { useModal } from "../../components/common/useModal";
@@ -125,6 +129,8 @@ export const Cart = () => {
   const coinOptions = [
     { value: "QORT", label: "QORT", icon: QORTLogo },
     { value: "ARRR", label: "ARRR", icon: ARRRLogo },
+    { value: "BTC", label: "BTC", icon: BTCLogo },
+    { value: "LTC", label: "LTC", icon: LTCLogo },
   ];
 
   const [cartOrders, setCartOrders] = useState<string[]>([]);
@@ -177,6 +183,56 @@ export const Cart = () => {
     }
 
   }
+  const calculateBTCExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/BITCOIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
+  const calculateLTCExchangeRate = async()=> {
+    try {
+      const url = '/crosschain/price/LITECOIN?maxtrades=10&inverse=true'
+    const info = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const responseDataStore = await info.text();
+
+    const ratio = +responseDataStore /100000000
+    if(isNaN(ratio)) throw new Error('Cannot get exchange rate')
+    setExchangeRate(ratio)
+    } catch (error) {
+      dispatch(setPreferredCoin(CoinFilter.qort))
+      dispatch(
+        setNotification({
+          alertType: "error",
+          msg: "Cannot get exchange rate- reverted to QORT",
+        })
+      );
+    }
+
+  }
   const storeToUse = useMemo(()=> {
     return  currentViewedStore
    }, [currentViewedStore])
@@ -185,6 +241,8 @@ export const Cart = () => {
     dispatch(setIsLoadingGlobal(true));
 
     await calculateARRRExchangeRate()
+    await calculateBTCExchangeRate()
+    await calculateLTCExchangeRate()
     dispatch(setIsLoadingGlobal(false));
 
 
@@ -193,12 +251,20 @@ export const Cart = () => {
   useEffect(()=> {
     if(preferredCoin === CoinFilter.arrr && storeToUse?.supportedCoins?.includes(CoinFilter.arrr)){
       switchCoin()
+    } else if(preferredCoin === CoinFilter.btc && storeToUse?.supportedCoins?.includes(CoinFilter.btc)){
+      switchCoin()
+    } else if(preferredCoin === CoinFilter.ltc && storeToUse?.supportedCoins?.includes(CoinFilter.ltc)){
+      switchCoin()
     } 
   }, [preferredCoin, storeToUse])
 
   const coinToUse = useMemo(()=> {
     if(preferredCoin === CoinFilter.arrr && storeToUse?.supportedCoins?.includes(CoinFilter.arrr)){
       return CoinFilter.arrr
+    } else if(preferredCoin === CoinFilter.btc && storeToUse?.supportedCoins?.includes(CoinFilter.btc)){
+      return CoinFilter.btc
+    } else if(preferredCoin === CoinFilter.ltc && storeToUse?.supportedCoins?.includes(CoinFilter.ltc)){
+      return CoinFilter.ltc
     } else {
       return CoinFilter.qort
     }
@@ -322,9 +388,15 @@ export const Cart = () => {
         if (!product) return acc;
         let price = product?.price?.find(item => item?.currency === "qort")?.value;
                       const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
+                      const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
+                      const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
                     
                       if(coinToUse === CoinFilter.arrr && priceArrr) {
                         price = +priceArrr
+                      } else if(coinToUse === CoinFilter.btc && priceBtc) {
+                        price = +priceBtc
+                      } else if(coinToUse === CoinFilter.ltc && priceLtc) {
+                        price = +priceLtc
                       } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
                         price = +price * exchangeRate
                       }
@@ -403,6 +475,24 @@ export const Cart = () => {
         destinationAddress: storeToUse?.foreignCoins?.ARRR.trim(),
         amount: priceToPay,
       });
+    } else if(coinToUse === CoinFilter.btc){
+
+      if(!storeToUse?.foreignCoins?.BTC) throw new Error('Store has not set a BTC address')
+      responseSendCoin = await qortalRequest({
+        action: "SEND_COIN",
+        coin: "BTC",
+        destinationAddress: storeToUse?.foreignCoins?.BTC.trim(),
+        amount: priceToPay,
+      });
+    } else if(coinToUse === CoinFilter.ltc){
+
+      if(!storeToUse?.foreignCoins?.LTC) throw new Error('Store has not set a LTC address')
+      responseSendCoin = await qortalRequest({
+        action: "SEND_COIN",
+        coin: "LTC",
+        destinationAddress: storeToUse?.foreignCoins?.LTC.trim(),
+        amount: priceToPay,
+      });
     } else {
       dispatch(
         setNotification({
@@ -436,7 +526,9 @@ export const Cart = () => {
           total: priceToPay,
           currency: coinToUse,
           transactionSignature: signature,
-          arrrAddressUsed: coinToUse === CoinFilter.arrr ? storeToUse?.foreignCoins?.ARRR.trim() : ""
+          arrrAddressUsed: coinToUse === CoinFilter.arrr ? storeToUse?.foreignCoins?.ARRR.trim() : "",
+          btcAddressUsed: coinToUse === CoinFilter.btc ? storeToUse?.foreignCoins?.BTC.trim() : "",
+          ltcAddressUsed: coinToUse === CoinFilter.ltc ? storeToUse?.foreignCoins?.LTC.trim() : ""
         },
         communicationMethod: ["Q-Mail"],
       };
@@ -461,7 +553,9 @@ export const Cart = () => {
           total: priceToPay,
           currency: coinToUse,
           transactionSignature: signature,
-          arrrAddressUsed: coinToUse === CoinFilter.arrr ? storeToUse?.foreignCoins?.ARRR.trim() : ""
+          arrrAddressUsed: coinToUse === CoinFilter.arrr ? storeToUse?.foreignCoins?.ARRR.trim() : "",
+          btcAddressUsed: coinToUse === CoinFilter.btc ? storeToUse?.foreignCoins?.BTC.trim() : "",
+          ltcAddressUsed: coinToUse === CoinFilter.ltc ? storeToUse?.foreignCoins?.LTC.trim() : ""
         },
         communicationMethod: ["Q-Mail"],
       };
@@ -811,9 +905,15 @@ export const Cart = () => {
         const product = catalogueHashMap[catalogueId].products[productId];
         let price = product?.price?.find(item => item?.currency === "qort")?.value;
   const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
+  const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
+  const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
 
   if(coinToUse === CoinFilter.arrr && priceArrr) {
     price = +priceArrr
+  } else if(coinToUse === CoinFilter.btc && priceBtc) {
+    price = +priceBtc
+  } else if(coinToUse === CoinFilter.ltc && priceLtc) {
+    price = +priceLtc
   } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
     price = +price * exchangeRate
   }
@@ -1053,9 +1153,15 @@ export const Cart = () => {
                       if (!product) return null;
                       let price = product?.price?.find(item => item?.currency === "qort")?.value;
                       const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
+                      const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
+                      const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
                     
                       if(coinToUse === CoinFilter.arrr && priceArrr) {
                         price = +priceArrr
+                      } else if(coinToUse === CoinFilter.btc && priceBtc) {
+                        price = +priceBtc
+                      } else if(coinToUse === CoinFilter.ltc && priceLtc) {
+                        price = +priceLtc
                       } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
                         price = +price * exchangeRate
                       }
@@ -1095,6 +1201,20 @@ export const Cart = () => {
                                   color={theme.palette.text.primary}
                                   />
                                     )}
+                                   {coinToUse === CoinFilter.btc && (
+                                 <BTCSVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                                   {coinToUse === CoinFilter.ltc && (
+                                 <LTCSVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
                                  {price}
                                 </span>
                               </ProductPriceFont>
@@ -1111,6 +1231,20 @@ export const Cart = () => {
                     )}
                                    {coinToUse === CoinFilter.arrr && (
                                  <ARRRSVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                                   {coinToUse === CoinFilter.btc && (
+                                 <BTCSVG
+                                  height={"20"}
+                                  width={"20"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                                   {coinToUse === CoinFilter.ltc && (
+                                 <LTCSVG
                                   height={"20"}
                                   width={"20"}
                                   color={theme.palette.text.primary}
@@ -1196,9 +1330,15 @@ export const Cart = () => {
                     if (!product) return null;
                     let price = product?.price?.find(item => item?.currency === "qort")?.value;
                     const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
+                    const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
+                    const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
                   
                     if(coinToUse === CoinFilter.arrr && priceArrr) {
                       price = +priceArrr
+                    } else if(coinToUse === CoinFilter.btc && priceBtc) {
+                      price = +priceBtc
+                    } else if(coinToUse === CoinFilter.ltc && priceLtc) {
+                      price = +priceLtc
                     } else if(price && exchangeRate && coinToUse !== CoinFilter.qort){
                       price = +price * exchangeRate
                     }
@@ -1223,6 +1363,22 @@ export const Cart = () => {
                                   color={theme.palette.text.primary}
                                   />
                                     )}
+                         
+                            {coinToUse === CoinFilter.btc && (
+                                 <BTCSVG
+                                  height={"18"}
+                                  width={"18"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
+                         
+                            {coinToUse === CoinFilter.ltc && (
+                                 <LTCSVG
+                                  height={"18"}
+                                  width={"18"}
+                                  color={theme.palette.text.primary}
+                                  />
+                                    )}
                           {price}
                         </TotalSumItemTitle>
                       </TotalSumItem>
@@ -1240,6 +1396,20 @@ export const Cart = () => {
                   )}
                   {coinToUse === CoinFilter.arrr && (
                    <ARRRSVG
+                height={"22"}
+                width={"22"}
+                color={theme.palette.text.primary}
+              />
+                  )}
+                  {coinToUse === CoinFilter.btc && (
+                   <BTCSVG
+                height={"22"}
+                width={"22"}
+                color={theme.palette.text.primary}
+              />
+                  )}
+                  {coinToUse === CoinFilter.ltc && (
+                   <LTCSVG
                 height={"22"}
                 width={"22"}
                 color={theme.palette.text.primary}
@@ -1302,6 +1472,28 @@ export const Cart = () => {
                             height="22"
                           />
                           ARRR
+                        </CustomMenuItem>
+                        <CustomMenuItem
+                          style={{ display: "flex", gap: "5px" }}
+                          value="BTC"
+                        >
+                          <BTCSVG
+                            color={theme.palette.text.primary}
+                            width="22"
+                            height="22"
+                          />
+                          BTC
+                        </CustomMenuItem>
+                        <CustomMenuItem
+                          style={{ display: "flex", gap: "5px" }}
+                          value="LTC"
+                        >
+                          <LTCSVG
+                            color={theme.palette.text.primary}
+                            width="22"
+                            height="22"
+                          />
+                          LTC
                         </CustomMenuItem>
                       </CustomSelect>
                     </FormControl>

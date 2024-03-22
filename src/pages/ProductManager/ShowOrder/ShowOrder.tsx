@@ -54,6 +54,8 @@ import { CustomInputField } from "../../../components/modals/CreateStoreModal-st
 import { CustomMenuItem } from "../NewProduct/NewProduct-styles";
 import { CoinFilter } from "../../Store/Store/Store";
 import { ARRRSVG } from "../../../assets/svgs/ARRRSVG";
+import { BTCSVG } from "../../../assets/svgs/BTCSVG";
+import { LTCSVG } from "../../../assets/svgs/LTCSVG";
 
 /* <QortalSVG /> must be replaced by <ARRRSVG /> everywhere here depending on the payment info */
 
@@ -406,6 +408,20 @@ export const ShowOrder: FC<ShowOrderProps> = ({
                                    color={theme.palette.text.primary}
                                  />
                                 )}
+                                {coinToUse === CoinFilter.btc && (
+                                   <BTCSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.ltc && (
+                                   <LTCSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
                               </OrderQuantityRow>
                               <TotalPriceRow>
                                 Total: {product?.totalProductPrice}
@@ -418,6 +434,20 @@ export const ShowOrder: FC<ShowOrderProps> = ({
                                 )}
                                 {coinToUse === CoinFilter.arrr && (
                                    <ARRRSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.btc && (
+                                   <BTCSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.ltc && (
+                                   <LTCSVG
                                    width={"22"}
                                    height={"22"}
                                    color={theme.palette.text.primary}
@@ -443,6 +473,20 @@ export const ShowOrder: FC<ShowOrderProps> = ({
                                 )}
                                 {coinToUse === CoinFilter.arrr && (
                                    <ARRRSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.btc && (
+                                   <BTCSVG
+                                   width={"22"}
+                                   height={"22"}
+                                   color={theme.palette.text.primary}
+                                 />
+                                )}
+                                {coinToUse === CoinFilter.ltc && (
+                                   <LTCSVG
                                    width={"22"}
                                    height={"22"}
                                    color={theme.palette.text.primary}
@@ -489,6 +533,30 @@ export const ShowOrder: FC<ShowOrderProps> = ({
                           <span>Payment sent to</span>{" "}
                           <span style={{ fontWeight: 300 }}>
                             {order?.payment?.arrrAddressUsed}
+                          </span>
+                          </>
+                           )}
+                   {coinToUse === CoinFilter.btc && (
+                    <>
+                     <span>Currency:</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {coinToUse}
+                          </span>
+                          <span>Payment sent to</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {order?.payment?.btcAddressUsed}
+                          </span>
+                          </>
+                           )}
+                   {coinToUse === CoinFilter.ltc && (
+                    <>
+                     <span>Currency:</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {coinToUse}
+                          </span>
+                          <span>Payment sent to</span>{" "}
+                          <span style={{ fontWeight: 300 }}>
+                            {order?.payment?.ltcAddressUsed}
                           </span>
                           </>
                            )}

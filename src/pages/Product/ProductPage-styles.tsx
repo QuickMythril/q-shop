@@ -1,7 +1,11 @@
 import { styled } from "@mui/system";
 import { Box, Button, Switch, Typography } from "@mui/material";
 import ARRRLogoGold from "../../assets/img/arrr.png";
+import BTCLogoColor from "../../assets/img/btc.png";
+import LTCLogoColor from "../../assets/img/ltc.png";
 import ARRRLogoWhite from "../../assets/img/ArrrLogoWhite.png";
+import BTCLogoWhite from "../../assets/img/BtcLogoWhite.png";
+import LTCLogoWhite from "../../assets/img/LtcLogoWhite.png";
 
 export const ProductLayout = styled(Box)(({ theme }) => ({
   position: "relative",

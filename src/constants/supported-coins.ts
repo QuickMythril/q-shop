@@ -1,6 +1,8 @@
 
 enum SupportedCoins {
   ARRR = 'ARRR',
+  BTC = 'BTC',
+  LTC = 'LTC',
   QORT = 'QORT',
 }
 

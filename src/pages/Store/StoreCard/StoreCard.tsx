@@ -28,6 +28,8 @@ import { RootState } from "../../../state/store";
 import { clearViewedStoreDataContainer } from "../../../state/features/storeSlice";
 import QORT from "../../../assets/img/qort.png";
 import ARRR from "../../../assets/img/arrr.png";
+import BTC from "../../../assets/img/btc.png";
+import LTC from "../../../assets/img/ltc.png";
 
 interface StoreCardProps {
   storeTitle: string;
@@ -137,6 +139,12 @@ export const StoreCard: FC<StoreCardProps> = ({
             <AcceptedCoin src={QORT} alt="QORT-logo" />
             {supportedCoins?.includes('ARRR') && (
              <AcceptedCoin src={ARRR} alt="ARRR-logo" />
+            )}
+            {supportedCoins?.includes('BTC') && (
+             <AcceptedCoin src={BTC} alt="BTC-logo" />
+            )}
+            {supportedCoins?.includes('LTC') && (
+             <AcceptedCoin src={LTC} alt="LTC-logo" />
             )}
           </AcceptedCoinsRow>
           <StoreCardOwner>{storeOwner}</StoreCardOwner>

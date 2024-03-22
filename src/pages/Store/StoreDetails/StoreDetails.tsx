@@ -23,6 +23,8 @@ import { ShippingSVG } from "../../../assets/svgs/ShippingSVG";
 import { CurrencySVG } from "../../../assets/svgs/CurrencySVG";
 import { QortalSVG } from "../../../assets/svgs/QortalSVG";
 import { ARRRSVG } from "../../../assets/svgs/ARRRSVG";
+import { BTCSVG } from "../../../assets/svgs/BTCSVG";
+import { LTCSVG } from "../../../assets/svgs/LTCSVG";
 import { ForeignCoins } from "../../../components/modals/CreateStoreModal";
 
 interface StoreDetailsProps {
@@ -138,6 +140,20 @@ export const StoreDetails: FC<StoreDetailsProps> = ({
               />
                {foreignCoins?.ARRR && (
                    <ARRRSVG
+                   color={theme.palette.text.primary}
+                   width={"32px"}
+                   height={"32px"}
+                 />
+                  )}
+               {foreignCoins?.BTC && (
+                   <BTCSVG
+                   color={theme.palette.text.primary}
+                   width={"32px"}
+                   height={"32px"}
+                 />
+                  )}
+               {foreignCoins?.LTC && (
+                   <LTCSVG
                    color={theme.palette.text.primary}
                    width={"32px"}
                    height={"32px"}

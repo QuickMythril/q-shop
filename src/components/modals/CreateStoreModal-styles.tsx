@@ -187,7 +187,7 @@ export const WalletRow = styled(Box)(({ theme }) => ({
   gap: "10px",
 }));
 
-export const DownloadArrrWalletIcon = styled(DownloadSVG)(({ theme }) => ({
+export const DownloadWalletIcon = styled(DownloadSVG)(({ theme }) => ({
   padding: "5px 7px",
   borderRadius: "50%",
   backgroundColor: theme.palette.background.paper,

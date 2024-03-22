@@ -17,6 +17,8 @@ import { useNavigate } from "react-router-dom";
 import { setNotification } from "../../../state/features/notificationsSlice";
 import { AcceptedCoinRow } from "../Store/Store-styles";
 import { ARRRSVG } from "../../../assets/svgs/ARRRSVG";
+import { BTCSVG } from "../../../assets/svgs/BTCSVG";
+import { LTCSVG } from "../../../assets/svgs/LTCSVG";
 import { CoinFilter } from "../Store/Store";
 
 function addEllipsis(str: string, limit: number) {
@@ -73,8 +75,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, exchangeRate,
 
   let price = product?.price?.find(item => item?.currency === "qort")?.value;
   const priceArrr = product?.price?.find(item => item?.currency === CoinFilter.arrr)?.value;
+  const priceBtc = product?.price?.find(item => item?.currency === CoinFilter.btc)?.value;
+  const priceLtc = product?.price?.find(item => item?.currency === CoinFilter.ltc)?.value;
   if(filterCoin === CoinFilter.arrr && priceArrr) {
     price = +priceArrr
+  }
+  else if(filterCoin === CoinFilter.btc && priceBtc) {
+    price = +priceBtc
+  }
+  else if(filterCoin === CoinFilter.ltc && priceLtc) {
+    price = +priceLtc
   }
   else if(price && exchangeRate && filterCoin !== CoinFilter.qort){
     price = +price * exchangeRate
@@ -123,6 +133,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, exchangeRate,
           {filterCoin === CoinFilter.arrr && (
              <AcceptedCoinRow>
              <ARRRSVG
+               color={theme.palette.text.primary}
+               height={"23"}
+               width={"23"}
+             />{" "}
+             {price}
+           </AcceptedCoinRow>
+          )}
+          {filterCoin === CoinFilter.btc && (
+             <AcceptedCoinRow>
+             <BTCSVG
+               color={theme.palette.text.primary}
+               height={"23"}
+               width={"23"}
+             />{" "}
+             {price}
+           </AcceptedCoinRow>
+          )}
+          {filterCoin === CoinFilter.ltc && (
+             <AcceptedCoinRow>
+             <LTCSVG
                color={theme.palette.text.primary}
                height={"23"}
                width={"23"}

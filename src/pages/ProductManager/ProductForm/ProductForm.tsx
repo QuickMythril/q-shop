@@ -43,6 +43,8 @@ interface ProductObj {
   images: string[];
   category?: string;
   priceARRR?: number;
+  priceBTC?: number;
+  priceLTC?: number;
   priceQORT?: number;
 }
 
@@ -81,6 +83,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ?.value || product.price;
       const editProductARRRPrice =
       editProduct?.price?.find((item: Price) => item?.currency === CoinFilter.arrr)
+        ?.value || "";
+      const editProductBTCPrice =
+      editProduct?.price?.find((item: Price) => item?.currency === CoinFilter.btc)
+        ?.value || "";
+      const editProductLTCPrice =
+      editProduct?.price?.find((item: Price) => item?.currency === CoinFilter.ltc)
         ?.value || "";
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -283,6 +291,34 @@ export const ProductForm: React.FC<ProductFormProps> = ({
          maxValue={Number.MAX_SAFE_INTEGER}
          allowDecimals={true}
          onChangeFunc={(val)=>handleProductPriceChangeForeign(val, CoinFilter.arrr)}
+         required={false}
+       />
+      )}
+      {currentStore?.supportedCoins?.includes(CoinFilter.btc) && (
+         <CustomNumberField
+         name="btc-price"
+         label="Price in BTC"
+         variant={Variant.filled}
+         initialValue={editProductBTCPrice.toString()}
+         addIconButtons={false}
+         minValue={0}
+         maxValue={Number.MAX_SAFE_INTEGER}
+         allowDecimals={true}
+         onChangeFunc={(val)=>handleProductPriceChangeForeign(val, CoinFilter.btc)}
+         required={false}
+       />
+      )}
+      {currentStore?.supportedCoins?.includes(CoinFilter.ltc) && (
+         <CustomNumberField
+         name="ltc-price"
+         label="Price in LTC"
+         variant={Variant.filled}
+         initialValue={editProductLTCPrice.toString()}
+         addIconButtons={false}
+         minValue={0}
+         maxValue={Number.MAX_SAFE_INTEGER}
+         allowDecimals={true}
+         onChangeFunc={(val)=>handleProductPriceChangeForeign(val, CoinFilter.ltc)}
          required={false}
        />
       )}
