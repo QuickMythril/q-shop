@@ -102,8 +102,11 @@ export const StoreReviews: FC<StoreReviewsProps> = ({
       const responseData = await response.json();
       // Modify resource into data that is more easily used on the front end
       const structuredReviewData = responseData.map(
-        (review: any): StoreReview => {
+        (review: any): StoreReview | null => {
           const splitIdentifier = review.identifier.split("-");
+          // Return null if idenfier is not an exact match, because search is not case sensitive
+          const prefixIdentifier = splitIdentifier.slice(0, splitIdentifier.length - 2).join("-");
+          if (query !== prefixIdentifier) return null;
           return {
             id: review?.identifier,
             name: review?.name,
@@ -114,7 +117,7 @@ export const StoreReviews: FC<StoreReviewsProps> = ({
             rating: Number(splitIdentifier[splitIdentifier.length - 1]) / 10
           };
         }
-        );
+        ).filter((review: StoreReview | null) => review !== null); // Filter out null entries
       setHasFetched(true);
 
       // Filter out duplicates by checking if the review id already exists in storeReviews in global redux store
