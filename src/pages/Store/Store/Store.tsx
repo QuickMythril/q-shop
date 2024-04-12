@@ -505,9 +505,12 @@ export const Store = () => {
       // Modify resource into data that is more easily used on the front end
       const storeRatingsArray = responseData.map((review: any) => {
         const splitIdentifier = review.identifier.split("-");
+        // Return null if idenfier is not an exact match, because search is not case sensitive
+        const prefixIdentifier = splitIdentifier.slice(0, splitIdentifier.length - 2).join("-");
+        if (query !== prefixIdentifier) return null;
         const rating = Number(splitIdentifier[splitIdentifier.length - 1]) / 10;
         return rating;
-      });
+      }).filter((rating: number | null) => rating !== null); // Filter out null entries
 
       // Calculate average rating of the store
       let averageRating =
