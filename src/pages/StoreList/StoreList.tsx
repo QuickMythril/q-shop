@@ -115,12 +115,10 @@ export const StoreList = () => {
 
   // Memoize the filtered stores to prevent rerenders
   const filteredStores = useMemo(() => {
-    if (filterUserStores) {
-      return myStores;
-    } else {
-      return stores;
-    }
-  }, [filterUserStores, stores, myStores, user?.name]);
+    let filtered = filterUserStores ? myStores : stores;
+    filtered = filtered.filter((store: Store) => hashMapStores[store.id]?.isValid);
+    return filtered;
+  }, [filterUserStores, stores, myStores, user?.name, hashMapStores]);
 
   return (
     <>

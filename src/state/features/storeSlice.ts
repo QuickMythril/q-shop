@@ -150,6 +150,10 @@ export const storeSlice = createSlice({
       const store = action.payload;
       state.hashMapStores[store?.id] = store;
     },
+    removeFromHashMapStores: (state, action) => {
+      const storeId = action.payload;
+      delete state.hashMapStores[storeId];
+    },
     addToHashMapStoreReviews: (state, action) => {
       const review = action.payload;
       state.hashMapStoreReviews[review.id] = review;
@@ -267,6 +271,7 @@ export const {
   upsertPostsBeginning,
   upsertFilteredPosts,
   addToHashMapStores,
+  removeFromHashMapStores,
   setStoreId,
   setStoreOwner,
   upsertStores,
