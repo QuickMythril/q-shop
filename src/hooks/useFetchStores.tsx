@@ -1,6 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToHashMapStores } from "../state/features/storeSlice";
+import { removeFromHashMapStores } from "../state/features/storeSlice";
 
 import { RootState } from "../state/store";
 import { fetchAndEvaluateProducts } from "../utils/fetchPosts";
@@ -22,9 +23,12 @@ export const useFetchStores = () => {
       storeId,
       content
     });
-
-    dispatch(addToHashMapStores(res));
-    return res;
+    if (res?.isValid) {
+      dispatch(addToHashMapStores(res));
+      return res;
+    } else {
+      dispatch(removeFromHashMapStores(storeId));
+    }
   };
 
   const checkAndUpdateResource = React.useCallback(
