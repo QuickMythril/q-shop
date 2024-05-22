@@ -48,7 +48,7 @@ export const StoreList = () => {
       const offset = stores.length;
       const query = STORE_BASE;
       // Fetch list of user stores' resources from Qortal blockchain
-      const url = `/arbitrary/resources/search?service=STORE&query=${query}&limit=20&mode=ALL&prefix=true&includemetadata=false&offset=${offset}&reverse=true`;
+      const url = `/arbitrary/resources/search?service=STORE&query=${query}&limit=200&mode=ALL&prefix=true&includemetadata=false&offset=${offset}&reverse=true`;
       const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -71,9 +71,11 @@ export const StoreList = () => {
           id: storeItem.identifier,
         };
       });
+      // Sort the array of stores by most recent 'updated' timestamp (use 'created' as fallback if never updated)
+      const sortedStructureData = structureData.sort((a: Store, b: Store) => (b.updated ?? b.created) - (a.updated ?? a.created));
       // Add stores to localstate & guard against duplicates
       const copiedStores: Store[] = [...stores];
-      structureData.forEach((storeItem: Store) => {
+      sortedStructureData.forEach((storeItem: Store) => {
         const index = stores.findIndex((p: Store) => p.id === storeItem.id);
         if (index !== -1) {
           copiedStores[index] = storeItem;
@@ -83,7 +85,7 @@ export const StoreList = () => {
       });
       dispatch(upsertStores(copiedStores));
       // Get the store raw data from getStore API Call only if the hashmapStore doesn't have the store or if the store is more recently updated than the existing store
-      for (const content of structureData) {
+      for (const content of sortedStructureData) {
         if (content.owner && content.id) {
           const res = checkAndUpdateResource({
             id: content.id,
