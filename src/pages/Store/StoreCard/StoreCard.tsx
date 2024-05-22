@@ -9,6 +9,7 @@ import {
   StoreCardImageContainer,
   StoreCardInfo,
   StoreCardOwner,
+  StoreCardUpdated,
   StoreCardTitle,
   StoresRow,
   StyledStoreCard,
@@ -28,6 +29,7 @@ import { RootState } from "../../../state/store";
 import { clearViewedStoreDataContainer } from "../../../state/features/storeSlice";
 import QORT from "../../../assets/img/qort.png";
 import ARRR from "../../../assets/img/arrr.png";
+import { formatTimestamp } from "../../../utils/time";
 
 interface StoreCardProps {
   storeTitle: string;
@@ -35,6 +37,7 @@ interface StoreCardProps {
   storeDescription: string;
   storeId: string;
   storeOwner: string;
+  storeUpdated: number;
   userName: string;
   supportedCoins: string[];
 }
@@ -45,6 +48,7 @@ export const StoreCard: FC<StoreCardProps> = ({
   storeDescription,
   storeId,
   storeOwner,
+  storeUpdated,
   userName,
   supportedCoins
 }) => {
@@ -140,6 +144,7 @@ export const StoreCard: FC<StoreCardProps> = ({
             )}
           </AcceptedCoinsRow>
           <StoreCardOwner>{storeOwner}</StoreCardOwner>
+          <StoreCardUpdated>Updated {formatTimestamp(storeUpdated)}</StoreCardUpdated>
           {storeOwner === userName && (
             <StyledTooltip placement="top" title="You own this store">
               <YouOwnIcon>

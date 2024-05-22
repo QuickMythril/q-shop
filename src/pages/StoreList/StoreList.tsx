@@ -170,6 +170,7 @@ export const StoreList = () => {
                   }
                   const storeId = storeItem?.id || "";
                   const storeOwner = storeItem?.owner || "";
+                  const storeUpdated = storeItem?.updated || storeItem.created;
                   const storeTitle = storeItem?.title || "Invalid Shop";
                   const storeLogo = storeItem?.logo || DefaultStoreImage;
                   const storeDescription = storeItem?.description || "";
@@ -205,6 +206,7 @@ export const StoreList = () => {
                         storeDescription={storeDescription || ""}
                         storeId={storeId || ""}
                         storeOwner={storeOwner || ""}
+                        storeUpdated={storeUpdated || 0}
                         key={storeId}
                         userName={user?.name || ""}
                         supportedCoins={supportedCoins}

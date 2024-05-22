@@ -197,6 +197,17 @@ export const StoreCardOwner = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.primary,
   fontSize: "15px",
   position: "absolute",
+  bottom: "25px",
+  right: "10px",
+  maxWidth: "180px",
+  userSelect: "none",
+}));
+
+export const StoreCardUpdated = styled(Typography)(({ theme }) => ({
+  fontFamily: "Livvic",
+  color: theme.palette.text.primary,
+  fontSize: "15px",
+  position: "absolute",
   bottom: "5px",
   right: "10px",
   maxWidth: "180px",
