@@ -9,6 +9,7 @@ import {
   AddToCartButton,
   ProductDescription,
   ProductTitle,
+  ProductUpdated,
   StyledCard,
   StyledCardContent,
 } from "./ProductCard-styles";
@@ -18,6 +19,7 @@ import { setNotification } from "../../../state/features/notificationsSlice";
 import { AcceptedCoinRow } from "../Store/Store-styles";
 import { ARRRSVG } from "../../../assets/svgs/ARRRSVG";
 import { CoinFilter } from "../Store/Store";
+import { formatTimestamp } from "../../../utils/time";
 
 function addEllipsis(str: string, limit: number) {
   if (str.length > limit) {
@@ -30,9 +32,10 @@ interface ProductCardProps {
   product: Product;
   exchangeRate: number | null;
   filterCoin: string;
+  productUpdated: number;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, exchangeRate, filterCoin }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, exchangeRate, filterCoin, productUpdated }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -132,6 +135,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, exchangeRate,
           )}
         
         </ProductDescription>
+        <ProductUpdated>Updated {formatTimestamp(productUpdated)}</ProductUpdated>
       </StyledCardContent>
       <div style={{ height: "37px" }}>
         {storeOwner !== userName && (

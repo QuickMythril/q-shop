@@ -1,5 +1,5 @@
 import { styled } from "@mui/system";
-import { Box, Button, Card, CardContent } from "@mui/material";
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 
 export const ProductTitle = styled(Box)(({ theme }) => ({
   displayq: "flex",
@@ -39,6 +39,17 @@ export const AddToCartButton = styled(Button)(({ theme }) => ({
     filter:
       theme.palette.mode === "dark" ? "brightness(1.8)" : "brightness(0.2)"
   }
+}));
+
+export const ProductUpdated = styled(Typography)(({ theme }) => ({
+  fontFamily: "Livvic",
+  color: theme.palette.text.primary,
+  fontSize: "15px",
+  position: "absolute",
+  bottom: "5px",
+  right: "10px",
+  maxWidth: "180px",
+  userSelect: "none",
 }));
 
 export const StyledCard = styled(Card)(({ theme }) => ({

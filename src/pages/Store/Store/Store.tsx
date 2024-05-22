@@ -971,6 +971,7 @@ export const Store = () => {
             filteredProducts.map((product: Product) => {
               const storeId: string = currentStore?.id || "";
               let productItem = product;
+              let productUpdated = product?.updated || product.created;
               let hasHash = false;
               const existingProduct =
                 catalogueHashMap[product?.catalogueId]?.products[product?.id];
@@ -1022,7 +1023,7 @@ export const Store = () => {
                         productItem?.catalogueId
                       }`}
                     >
-                      <ProductCard product={productItem} exchangeRate={exchangeRate} filterCoin={coinToUse} />
+                      <ProductCard product={productItem} exchangeRate={exchangeRate} filterCoin={coinToUse} productUpdated={productUpdated} />
                     </ContextMenuResource>
                   </ProductCardCol>
                 );
